@@ -1,0 +1,660 @@
+unit fileModule;
+
+interface
+
+type
+  TOrderFile = file of string;
+
+//procedure saveToFile(var OrderHead: POrder;var PostmanHead: PPostman;
+//  var DeliveryHead: PDelivery);
+procedure OpenFiles;
+
+implementation
+
+uses
+  System.SysUtils, Windows, ownFunctions;
+
+var
+  OrderFile: TOrderFile;
+  PostmanFile: TPostmanFile;
+  DeliveryFile: TDeliveryFile;
+
+  { *
+
+    This part of code wotk with files for save they
+    1) We need concrete we need sava files or not.
+    2) We need write directory where we want to store out files
+    3) We need to write name for directory where we want store our data
+    4) If directory alrady exist we ask to the customer: reset directory or not?
+    5) If customer choose reset, we are reset files
+    6) If not, customer should write new directory name
+    7) if directory does not exist we are create it and save files to this directory
+
+    * }
+procedure addToDataToFile(var listOrder: POrder; var listPostman: PPostman;
+  var listDelivery: PDelivery; const folderName, directoryPath: string);
+var
+  pathOrder, pathPostman, pathDelivery: string;
+  tempOrder: POrder;
+  tempPostman: PPostman;
+  tempDelivery: PDelivery;
+begin
+  pathOrder := directoryPath + '\' + folderName + '_OrderList.data';
+  pathPostman := directoryPath + '\' + folderName + '_PostmanList.data';
+  pathDelivery := directoryPath + '\' + folderName + '_DeliveryList.data';
+
+  // Write order data to file
+  assign(OrderFile, pathOrder);
+  rewrite(OrderFile);
+  tempOrder := listOrder;
+  while tempOrder <> nil do
+  begin
+    write(OrderFile, tempOrder^.data);
+    tempOrder := tempOrder^.next;
+  end;
+  close(OrderFile);
+
+  // Write postman data to file
+  assign(PostmanFile, pathPostman);
+  rewrite(PostmanFile);
+  tempPostman := listPostman;
+  while tempPostman <> nil do
+  begin
+    write(PostmanFile, tempPostman^.data);
+    tempPostman := tempPostman^.next;
+  end;
+  close(PostmanFile);
+
+  // Write delivery data to file
+  assign(DeliveryFile, pathDelivery);
+  rewrite(DeliveryFile);
+  tempDelivery := listDelivery;
+  while tempDelivery <> nil do
+  begin
+    write(DeliveryFile, tempDelivery^.data);
+    tempDelivery := tempDelivery^.next;
+  end;
+  close(DeliveryFile);
+end;
+
+procedure checkExist(const errorOrder, errorPostman, errorDelivery: Integer;
+  folderName, directoryPath: string;var listOrder: POrder; var listPostman: PPostman;
+  var listDelivery: PDelivery);
+var
+  checkInput: string;
+  checkInt: Integer;
+begin
+  if (errorOrder <> 0) or (errorPostman <> 0) or (errorDelivery <> 0) then
+  begin
+    repeat
+      writeln('The folder with the entered name already exists.');
+      write('Enter 1 to overwrite data, otherwise 0: ');
+      Readln(checkInput);
+    until TryStrToInt(checkInput, checkInt) and ((checkInt = 0) or (checkInt = 1));
+
+    if checkInt = 0 then
+      writeln('You declined to overwrite.')
+    else
+    begin
+      addToDataToFile(listOrder, listPostman, listDelivery, folderName, directoryPath);
+      writeln('Data has been overwritten.');
+    end;
+  end
+  else
+  begin
+    addToDataToFile(listOrder, listPostman, listDelivery, folderName, directoryPath);
+    writeln('Data has been written to the directory.');
+  end;
+end;
+
+procedure createFiles(var listOrder: POrder; var listPostman: PPostman;
+  var listDelivery: PDelivery; var folderName, directoryPath: String;
+  var errorOrder, errorPostman, errorDelivery: Integer);
+var
+  checkPath: string;
+begin
+  writeln('Enter the name of the folder you want to create:');
+  Readln(folderName);
+
+  directoryPath := directoryPath + '\' + folderName;
+  if not DirectoryExists(directoryPath) then
+  begin
+    ForceDirectories(directoryPath);
+    addToDataToFile(listOrder, listPostman, listDelivery, folderName, directoryPath);
+    writeln('A new folder has been created. Data has been written.');
+  end
+  else
+  begin
+    checkPath := directoryPath + '\' + folderName + '_OrderList.data';
+    if FileExists(checkPath) then
+      errorOrder := 1;
+
+    checkPath := directoryPath + '\' + folderName + '_PostmanList.data';
+    if FileExists(checkPath) then
+      errorPostman := 1;
+
+    checkPath := directoryPath + '\' + folderName + '_DeliveryList.data';
+    if FileExists(checkPath) then
+      errorDelivery := 1;
+
+    checkExist(errorOrder, errorPostman, errorDelivery, folderName,
+      directoryPath, listOrder, listPostman, listDelivery);
+  end;
+end;
+
+procedure saveToFile(var OrderHead: POrder;var PostmanHead: PPostman;
+  var DeliveryHead: PDelivery);
+var
+  directoryPath, folderName: string;
+  menuInt: Integer;
+  errorOrder, errorPostman, errorDelivery: Integer;
+begin
+  writeln('You have chosen the save function with modifications.');
+  writeln;
+
+  repeat
+    writeln('Enter the path where you want to create the folder with files:');
+    Readln(directoryPath);
+    if not DirectoryExists(directoryPath) then
+      writeln('The specified directory does not exist. Please try again.');
+  until DirectoryExists(directoryPath);
+
+  createFiles(OrderHead, PostmanHead, DeliveryHead, folderName, directoryPath,
+    errorOrder, errorPostman, errorDelivery);
+end;
+
+// ---------------------------------------------------------------------------
+
+
+
+
+{ *
+
+  This part of code is responsible for open files and take data from this files
+
+  * }
+
+procedure ReadDataFromFiles(var listOrder, tailOrder: POrder;
+  var listPostman, tailPostman: PPostman;
+  var listDelivery, tailDelivery: PDelivery;
+  var folderName, directoryPath: String; var errorOrder, errorPostman,
+  errorDelivery: Integer);
+var
+  checkPath: string;
+  OrderData: TOrderData;
+  PostmanData: TPostmanData;
+  DeliveryData: TDeliveryData;
+begin
+  writeln('Enter the name of the folder where your files are stored:');
+//  Readln(folderName);
+  folderName := Trim(folderName); // Trim leading and trailing spaces
+  directoryPath := directoryPath + '\' + folderName;
+
+  if directoryExists(directoryPath) then
+  begin
+    checkPath := directoryPath + '\FinalBaseMesh.obj';
+    if FileExists(checkPath) then
+    begin
+    Writeln('!');
+      assign(OrderFile, checkPath);
+      reset(OrderFile);
+      while not EOF(OrderFile) do
+      begin
+        Read(OrderFile, OrderData);
+        Writeln('!');
+        AppendOrderFromFile(listOrder, tailOrder, OrderData);
+      end;
+      close(OrderFile);
+    end
+    else
+      errorOrder := 1; // File not found error
+
+    checkPath := directoryPath + '\' + folderName + '_PostmanList.data';
+    if FileExists(checkPath) then
+    begin
+      assign(PostmanFile, checkPath);
+      reset(PostmanFile);
+      while not EOF(PostmanFile) do
+      begin
+        Writeln('+');
+        Read(PostmanFile, PostmanData);
+        AppendPostmanFromFile(listPostman, tailPostman, PostmanData);
+      end;
+      close(PostmanFile);
+    end
+    else
+      errorPostman := 1; // File not found error
+
+    checkPath := directoryPath + '\' + folderName + '_DeliveryList.data';
+    if FileExists(checkPath) then
+    begin
+      assign(DeliveryFile, checkPath);
+      reset(DeliveryFile);
+      while not EOF(DeliveryFile) do
+      begin
+        Writeln('-');
+        Read(DeliveryFile, DeliveryData);
+        AppendDeliveryFromFile(listDelivery, tailDelivery, DeliveryData);
+      end;
+      close(DeliveryFile);
+    end
+    else
+      errorPostman := 1; // File not found error
+
+
+
+    // Similar operations for Postman and Delivery files
+
+    writeln('Data has been read.');
+  end
+  else
+  begin
+    writeln('The specified directory does not exist.');
+    writeln('Please provide the correct directory path.');
+    // Repeat the directory input process
+  end;
+end;
+
+procedure OpenFiles(var OrderHead, OrderTail: POrder;
+  var PostmanHead, PostmanTail: PPostman;
+  var DeliveryHead, DeliveryTail: PDelivery);
+var
+  menuInt: Integer;
+  errorOrder, errorPostman, errorDelivery: Integer;
+  directoryPath, folderName: string;
+begin
+
+  writeln('You have chosen the function to read data from files.');
+  writeln('Press 1 to continue, or 0 to exit the procedure:');
+
+  repeat
+    try
+      Readln(menuInt);
+      if (menuInt <> 0) and (menuInt <> 1) then
+        Write('Invalid input. Please try again: ')
+      else
+      begin
+        case menuInt of
+          0:
+            begin
+              writeln('Exiting the procedure...');
+              // Add delay or exit statement
+            end;
+          1:
+            begin
+              writeln('Enter the directory path where the files are located:');
+              Readln(directoryPath);
+              // Validate directory path and proceed
+              ReadDataFromFiles(OrderHead, OrderTail, PostmanHead, PostmanTail,
+                DeliveryHead, DeliveryTail, folderName, directoryPath, errorOrder,
+                errorPostman, errorDelivery);
+            end;
+        end;
+      end;
+    except
+      Write('Invalid input. Please try again: ');
+    end;
+  until (menuInt = 0) or (menuInt = 1);
+end;
+
+
+// function SaveWithChanges(list1: PartListType; list2: PartTypeListType;
+// list3: CompatiblePartListType; list4: ClientOrderListType;
+// list5: OrderListType): boolean;
+//
+// var
+// checkInput: string;
+// checkInt, checkErrorCode: Integer;
+//
+// var
+// directoryPath, folder_files_Name, checkPath, path1, path2, path3, path4,
+// path5: string;
+// error1, error2, error3, error4, error5: Integer;
+// executionContinue: boolean;
+// temp1: PartListType;
+// temp2: PartTypeListType;
+// temp3: CompatiblePartListType;
+// temp4: ClientOrderListType;
+// temp5: OrderListType;
+//
+// var
+// partListFile: PartListFileType;
+// partTypeListFile: PartTypeListFileType;
+// compatiblePartListFile: CompatiblePartListFileType;
+// clientOrderListFile: ClientOrderListFileType;
+// orderListFile: OrderListFileType;
+//
+// begin
+// checkErrorCode := 1;
+// checkInt := -1;
+// checkInput := '';
+// while (checkErrorCode > 0) and ((checkInt <> 0) or (checkInt <> 1)) do
+// begin
+// clrscr();
+// writeln('Вы выбрали функцию сохранения с изменениями.');
+// writeln;
+// write('Введите 1, чтобы продолжить, или 0 для выхода из процедуры: ');
+// Readln(checkInput);
+// writeln;
+// val(checkInput, checkInt, checkErrorCode);
+// if (checkErrorCode > 0) and ((checkInt <> 0) or (checkInt <> 1)) then
+// begin
+// writeln('Некорректный ввод. Нажмите для повторного ввода');
+// Readln;
+// end;
+// end;
+// if checkInt = 0 then
+// begin
+// ClearScreen();
+// writeln('Вы отказались от выхода из программы.');
+// sleep(1200);
+// executionContinue := true;
+// end
+// else
+// begin
+// repeat
+// ClearScreen();
+// writeln('Введите путь, в котором хотите создать папку с файлами:');
+// writeln;
+// Readln(directoryPath);
+// writeln;
+// if not directoryExists(directoryPath) then
+// begin
+// writeln('Указанная вами директория не существует. Нажмите для повторного ввода.');
+// Readln;
+// end;
+// until directoryExists(directoryPath);
+// writeln('Введите название папки, которую хотите создать:');
+// writeln;
+// Readln(folder_files_Name);
+// while folder_files_Name[1] = '\' do
+// delete(folder_files_Name, 1, 1);
+// while folder_files_Name[length(folder_files_Name)] = '\' do
+// delete(folder_files_Name, length(folder_files_Name), 1);
+// writeln;
+// directoryPath := directoryPath + '\' + folder_files_Name;
+// if directoryExists(directoryPath) then
+// begin
+// checkPath := directoryPath + '\' + folder_files_Name +
+// '_PartListData.data';
+// assign(partListFile, checkPath);
+// {$I-}
+// reset(partListFile);
+// error1 := IOResult;
+// close(partListFile);
+// checkPath := directoryPath + '\' + folder_files_Name +
+// '_PartTypeListData.upozn';
+// assign(partTypeListFile, checkPath);
+// {$I-}
+// reset(partTypeListFile);
+// error2 := IOResult;
+// close(partTypeListFile);
+// checkPath := directoryPath + '\' + folder_files_Name +
+// '_CompatiblePartListData.upozn';
+// assign(compatiblePartListFile, checkPath);
+// {$I-}
+// reset(compatiblePartListFile);
+// error3 := IOResult;
+// close(compatiblePartListFile);
+// checkPath := directoryPath + '\' + folder_files_Name +
+// '_ClientOrderListData.upozn';
+// assign(clientOrderListFile, checkPath);
+// {$I-}
+// reset(clientOrderListFile);
+// error4 := IOResult;
+// close(clientOrderListFile);
+// checkPath := directoryPath + '\' + folder_files_Name +
+// '_OrderListData.upozn';
+// assign(orderListFile, checkPath);
+// {$I-}
+// reset(orderListFile);
+// error5 := IOResult;
+// close(orderListFile);
+// if (error1 = 0) and (error2 = 0) and (error3 = 0) and (error4 = 0) and
+// (error5 = 0) then
+// begin
+// checkInput := '';
+// checkInt := -1;
+// checkErrorCode := 1;
+// while (checkErrorCode > 0) and ((checkInt <> 0) or (checkInt <> 1)) do
+// begin
+// writeln('Папка с введенным названием уже существует.');
+// writeln;
+// write('Введите 1 для перезаписи данных, иначе 0: ');
+// Readln(checkInput);
+// val(checkInput, checkInt, checkErrorCode);
+// if (checkErrorCode > 0) and ((checkInt <> 0) or (checkInt <> 1)) then
+// begin
+// writeln('Некорректный ввод. Нажмите для повторного ввода.');
+// Readln;
+// ClearScreen();
+// end;
+// end;
+// if checkInt = 0 then
+// begin
+// ClearScreen();
+// writeln('Вы отказались от перезаписи.');
+// sleep(1200);
+// executionContinue := true;
+// end
+// else
+// begin
+// path1 := directoryPath + '\' + folder_files_Name +
+// '_PartListData.upozn';
+// path2 := directoryPath + '\' + folder_files_Name +
+// '_PartTypeListData.upozn';
+// path3 := directoryPath + '\' + folder_files_Name +
+// '_CompatiblePartListData.upozn';
+// path4 := directoryPath + '\' + folder_files_Name +
+// '_ClientOrderListData.upozn';
+// path5 := directoryPath + '\' + folder_files_Name +
+// '_OrderListData.upozn';
+// assign(partListFile, path1);
+// rewrite(partListFile);
+// while list1^.partListNextElement <> nil do
+// begin
+// write(partListFile, list1^.partListNextElement^.partListInfo);
+// temp1 := list1^.partListNextElement^.partListNextElement;
+// dispose(list1^.partListNextElement);
+// list1^.partListNextElement := temp1;
+// end;
+// close(partListFile);
+// assign(partTypeListFile, path2);
+// rewrite(partTypeListFile);
+// while list2^.partTypeListNextElement <> nil do
+// begin
+// write(partTypeListFile,
+// list2^.partTypeListNextElement^.partTypeListInfo);
+// temp2 := list2^.partTypeListNextElement^.partTypeListNextElement;
+// dispose(list2^.partTypeListNextElement);
+// list2^.partTypeListNextElement := temp2;
+// end;
+// close(partTypeListFile);
+// assign(compatiblePartListFile, path3);
+// rewrite(compatiblePartListFile);
+// while list3^.compatiblePartListNextElement <> nil do
+// begin
+// write(compatiblePartListFile,
+// list3^.compatiblePartListNextElement^.compatiblePartListInfo);
+// temp3 := list3^.compatiblePartListNextElement^.
+// compatiblePartListNextElement;
+// dispose(list3^.compatiblePartListNextElement);
+// list3^.compatiblePartListNextElement := temp3;
+// end;
+// close(compatiblePartListFile);
+// assign(clientOrderListFile, path4);
+// rewrite(clientOrderListFile);
+// while list4^.clientOrderListNextElement <> nil do
+// begin
+// write(clientOrderListFile,
+// list4^.clientOrderListNextElement^.clientOrderListInfo);
+// temp4 := list4^.clientOrderListNextElement^.
+// clientOrderListNextElement;
+// dispose(list4^.clientOrderListNextElement);
+// list4^.clientOrderListNextElement := temp4;
+// end;
+// close(clientOrderListFile);
+// assign(orderListFile, path5);
+// rewrite(orderListFile);
+// while list5^.orderListNextElement <> nil do
+// begin
+// write(orderListFile, list5^.orderListNextElement^.orderListInfo);
+// temp5 := list5^.orderListNextElement^.orderListNextElement;
+// dispose(list5^.orderListNextElement);
+// list5^.orderListNextElement := temp5;
+// end;
+// close(orderListFile);
+// executionContinue := false;
+// ClearScreen();
+// writeln('Данные перезаписаны.');
+// sleep(1200);
+// end;
+// end
+// else
+// begin
+// path1 := directoryPath + '\' + folder_files_Name +
+// '_PartListData.upozn';
+// path2 := directoryPath + '\' + folder_files_Name +
+// '_PartTypeListData.upozn';
+// path3 := directoryPath + '\' + folder_files_Name +
+// '_CompatiblePartListData.upozn';
+// path4 := directoryPath + '\' + folder_files_Name +
+// '_ClientOrderListData.upozn';
+// path5 := directoryPath + '\' + folder_files_Name +
+// '_OrderListData.upozn';
+// assign(partListFile, path1);
+// rewrite(partListFile);
+// while list1^.partListNextElement <> nil do
+// begin
+// write(partListFile, list1^.partListNextElement^.partListInfo);
+// temp1 := list1^.partListNextElement^.partListNextElement;
+// dispose(list1^.partListNextElement);
+// list1^.partListNextElement := temp1;
+// end;
+// close(partListFile);
+// assign(partTypeListFile, path2);
+// rewrite(partTypeListFile);
+// while list2^.partTypeListNextElement <> nil do
+// begin
+// write(partTypeListFile,
+// list2^.partTypeListNextElement^.partTypeListInfo);
+// temp2 := list2^.partTypeListNextElement^.partTypeListNextElement;
+// dispose(list2^.partTypeListNextElement);
+// list2^.partTypeListNextElement := temp2;
+// end;
+// close(partTypeListFile);
+// assign(compatiblePartListFile, path3);
+// rewrite(compatiblePartListFile);
+// while list3^.compatiblePartListNextElement <> nil do
+// begin
+// write(compatiblePartListFile,
+// list3^.compatiblePartListNextElement^.compatiblePartListInfo);
+// temp3 := list3^.compatiblePartListNextElement^.
+// compatiblePartListNextElement;
+// dispose(list3^.compatiblePartListNextElement);
+// list3^.compatiblePartListNextElement := temp3;
+// end;
+// close(compatiblePartListFile);
+// assign(clientOrderListFile, path4);
+// rewrite(clientOrderListFile);
+// while list4^.clientOrderListNextElement <> nil do
+// begin
+// write(clientOrderListFile,
+// list4^.clientOrderListNextElement^.clientOrderListInfo);
+// temp4 := list4^.clientOrderListNextElement^.
+// clientOrderListNextElement;
+// dispose(list4^.clientOrderListNextElement);
+// list4^.clientOrderListNextElement := temp4;
+// end;
+// close(clientOrderListFile);
+// assign(orderListFile, path5);
+// rewrite(orderListFile);
+// while list5^.orderListNextElement <> nil do
+// begin
+// write(orderListFile, list5^.orderListNextElement^.orderListInfo);
+// temp5 := list5^.orderListNextElement^.orderListNextElement;
+// dispose(list5^.orderListNextElement);
+// list5^.orderListNextElement := temp5;
+// end;
+// close(orderListFile);
+// executionContinue := false;
+// ClearScreen();
+// writeln('Данные записаны по директории.');
+// sleep(1200);
+// end;
+// end
+// else
+// begin
+// forceDirectories(directoryPath);
+// path1 := directoryPath + '\' + folder_files_Name + '_PartListData.upozn';
+// path2 := directoryPath + '\' + folder_files_Name +
+// '_PartTypeListData.upozn';
+// path3 := directoryPath + '\' + folder_files_Name +
+// '_CompatiblePartListData.upozn';
+// path4 := directoryPath + '\' + folder_files_Name +
+// '_ClientOrderListData.upozn';
+// path5 := directoryPath + '\' + folder_files_Name + '_OrderListData.upozn';
+// assign(partListFile, path1);
+// rewrite(partListFile);
+// while list1^.partListNextElement <> nil do
+// begin
+// write(partListFile, list1^.partListNextElement^.partListInfo);
+// temp1 := list1^.partListNextElement^.partListNextElement;
+// dispose(list1^.partListNextElement);
+// list1^.partListNextElement := temp1;
+// end;
+// close(partListFile);
+// assign(partTypeListFile, path2);
+// rewrite(partTypeListFile);
+// while list2^.partTypeListNextElement <> nil do
+// begin
+// write(partTypeListFile,
+// list2^.partTypeListNextElement^.partTypeListInfo);
+// temp2 := list2^.partTypeListNextElement^.partTypeListNextElement;
+// dispose(list2^.partTypeListNextElement);
+// list2^.partTypeListNextElement := temp2;
+// end;
+// close(partTypeListFile);
+// assign(compatiblePartListFile, path3);
+// rewrite(compatiblePartListFile);
+// while list3^.compatiblePartListNextElement <> nil do
+// begin
+// write(compatiblePartListFile,
+// list3^.compatiblePartListNextElement^.compatiblePartListInfo);
+// temp3 := list3^.compatiblePartListNextElement^.
+// compatiblePartListNextElement;
+// dispose(list3^.compatiblePartListNextElement);
+// list3^.compatiblePartListNextElement := temp3;
+// end;
+// close(compatiblePartListFile);
+// assign(clientOrderListFile, path4);
+// rewrite(clientOrderListFile);
+// while list4^.clientOrderListNextElement <> nil do
+// begin
+// write(clientOrderListFile,
+// list4^.clientOrderListNextElement^.clientOrderListInfo);
+// temp4 := list4^.clientOrderListNextElement^.clientOrderListNextElement;
+// dispose(list4^.clientOrderListNextElement);
+// list4^.clientOrderListNextElement := temp4;
+// end;
+// close(clientOrderListFile);
+// assign(orderListFile, path5);
+// rewrite(orderListFile);
+// while list5^.orderListNextElement <> nil do
+// begin
+// write(orderListFile, list5^.orderListNextElement^.orderListInfo);
+// temp5 := list5^.orderListNextElement^.orderListNextElement;
+// dispose(list5^.orderListNextElement);
+// list5^.orderListNextElement := temp5;
+// end;
+// close(orderListFile);
+// executionContinue := false;
+// ClearScreen();
+// writeln('Новая папка была создана. Данные записаны.');
+// sleep(1200);
+// end;
+// end;
+// result := executionContinue;
+// end;
+
+end.

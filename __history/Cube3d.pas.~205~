@@ -1,0 +1,177 @@
+unit Cube3d;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.Variants, System.Classes,
+  Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, JPEG,
+  modelSpin, modelFileModule;
+
+type
+  TOrderFile = file of string[100];
+  TStrign = string;
+  TPoint3D = array [0 .. 2] of Double;
+  TFace = array of TPoint3D;
+
+  TForm2 = class(TForm)
+    Button1: TButton;
+    OpenModel: TOpenDialog;
+    SaveModel: TSaveDialog;
+    Label1: TLabel;
+    procedure FormCreate(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure FormPaint(Sender: TObject);
+    procedure Image1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure Image1MouseMove(Sender: TObject; Shift: TShiftState;
+      X, Y: Integer);
+    procedure Image1MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    // procedure FormPaint(Sender: TObject);
+
+  private
+    { Private declarations }
+    Drawing: Boolean;
+    PrevX, PrevY: Integer;
+    FStartPoint, FEndPoint: TPoint;
+    FDrawingLine: Boolean;
+    bm: TBitmap;
+    bm2: TBitmap;
+    procedure AddLineToCanvas;
+    procedure SwapBuffers;
+  public
+    { Public declarations }
+  end;
+
+var
+  Form2: TForm2;
+
+implementation
+
+uses
+  System.SysUtils;
+{$R *.dfm}
+
+var
+  Vershina: TPoint3DArray;
+  Normalies: TPoint3DArray;
+  Faces: PFace;
+
+  EndFaces: PFace;
+
+  // var
+  // Vershina: array of TPoint3D;
+  // Nomalies: array of TPoint3D;
+  // Faces: array of TFace;
+
+procedure TForm2.FormCreate(Sender: TObject);
+begin
+  bm := TBitmap.Create;
+  bm2 := TBitmap.Create;
+  FDrawingLine := false;
+  OpenModel.Filter := 'Model files (*.dat)|*.dat|Base OBJ model (*.obj)|*.obj|';
+  SaveModel.Filter := 'Model files (*.dat)|*.dat|';
+end;
+
+procedure TForm2.FormPaint(Sender: TObject);
+begin
+  with Canvas do
+  begin
+    MoveTo(0, 0);
+    LineTo(ClientWidth, ClientHeight);
+    MoveTo(0, ClientHeight);
+    LineTo(ClientWidth, 0);
+  end;
+end;
+
+procedure TForm2.Image1MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  FStartPoint := Point(X, Y);
+  FDrawingLine := true;
+end;
+
+procedure TForm2.Image1MouseMove(Sender: TObject; Shift: TShiftState;
+  X, Y: Integer);
+begin
+  if FDrawingLine then
+  begin
+    SwapBuffers;
+    bm.Canvas.MoveTo(FStartPoint.X, FStartPoint.Y);
+    bm.Canvas.LineTo(X, Y);
+  end;
+end;
+
+procedure TForm2.Image1MouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  FDrawingLine := false;
+  FEndPoint := Point(X, Y);
+  AddLineToCanvas;
+  SwapBuffers;
+end;
+
+procedure TForm2.Button1Click(Sender: TObject);
+
+var
+  ObjFile: TextFile;
+  Line: string;
+begin
+  if OpenModel.Execute then
+    if FileExists(OpenModel.FileName) then
+    begin
+      if OpenModel.FilterIndex = 1 then
+      begin
+        Application.CreateForm(TFormSpineModel, FormSpineModel);
+        FormSpineModel.FilePath := OpenModel.FileName;
+        FormSpineModel.Show;
+        FormSpineModel.FilePath := OpenModel.FileName;
+      end
+      else if OpenModel.FilterIndex = 2 then
+      begin
+        AssignFile(ObjFile, OpenModel.FileName);
+        Reset(ObjFile);
+        try
+          while not Eof(ObjFile) do
+          begin
+            ReadLn(ObjFile, Line);
+            ParseLine(Line, Vershina, Normalies, Faces, EndFaces);
+            Application.ProcessMessages;
+          end;
+
+        finally
+          CloseFile(ObjFile);
+          if SaveModel.Execute then
+            if FileExists(SaveModel.FileName) then
+              { If it exists, raise an exception. }
+              raise Exception.Create('File already exists. Cannot overwrite.')
+            else
+            begin
+              SavePFaceToFile(Faces, SaveModel.FileName + '.dat');
+              //
+
+            end;
+        end;
+
+        // Form3.Faces:=Faces;
+
+        // //
+
+      end;
+    end;
+end;
+
+procedure TForm2.AddLineToCanvas;
+begin
+  Canvas.MoveTo(FStartPoint.X, FStartPoint.Y);
+  Canvas.LineTo(FEndPoint.X, FEndPoint.Y);
+end;
+
+procedure TForm2.SwapBuffers;
+begin
+  BitBlt(bm.Canvas.Handle, 0, 0, ClientWidth, ClientHeight, bm.Canvas.Handle, 0,
+    0, SRCCOPY);
+end;
+
+end.
