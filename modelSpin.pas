@@ -440,11 +440,12 @@ begin
   Result := z1 > z2; // Reversed the comparison to sort in descending order
 end;
 
-procedure QuickSort(var arr: array of TTriangle; var arrN: array of Double; Left, Right: Integer);
+procedure QuickSort(var arr: array of TTriangle; var arrN: array of double;
+  Left, Right: Integer);
 var
   i, J: Integer;
   Pivot, temp: TTriangle;
-  tempN:Double;
+  tempN: double;
 begin
   i := Left;
   J := Right;
@@ -510,7 +511,7 @@ var
   line1, line2, Normal, toCamera: TDoubleArray3;
   vecTrianglesToRaster: array of TTriangle;
   l: double;
-  dotProduct: array of Double;
+  dotProduct: array of double;
   points: TTriangle;
 
   // Параметры камеры
@@ -551,7 +552,7 @@ begin
   with Result.Canvas do
   begin
     Brush.Color := clWhite;
-//    Brush.Style := bsSolid;
+    // Brush.Style := bsSolid;
     Pen.Color := Transparent; // или любой другой цвет для рисования границ
 
     FillRect(ClipRect);
@@ -583,8 +584,6 @@ begin
       Normal[1] := Normal[1] / l;
       Normal[2] := Normal[2] / l;
 
-
-
       toCamera[0] := temp^.data.Coordinates[temp^.data.nodes[0][0]][0] -
         cameraPos[0];
       toCamera[1] := temp^.data.Coordinates[temp^.data.nodes[0][0]][1] -
@@ -597,22 +596,26 @@ begin
       // Проверяем видимость каждой грани кубоида
       if (Normal[2] < 0) then
       begin
-        SetLength(dotProduct, Length(dotProduct)+1);
-        dotProduct[Length(dotProduct)-1] := Normal[0] * lightDirection[0] + Normal[1] * lightDirection
-          [1] + Normal[2] * lightDirection[2];
+        SetLength(dotProduct, Length(dotProduct) + 1);
+        dotProduct[Length(dotProduct) - 1] := Normal[0] * lightDirection[0] +
+          Normal[1] * lightDirection[1] + Normal[2] * lightDirection[2];
 
         for var i := 0 to 3 do
         begin
-        try
-          points[i].X := Round(temp^.data.Coordinates[temp^.data.nodes[i][0]][0]
-            ) + offset.X;
-          points[i].Y := Round(temp^.data.Coordinates[temp^.data.nodes[i][0]][1]
-            ) + offset.Y;
-          points[i].z :=
-            Round(temp^.data.Coordinates[temp^.data.nodes[i][0]][2]);
-        except
-          continue;
-        end;
+          try
+            if temp^.data.Coordinates[temp^.data.nodes[i][0]][0] < 10000000000000
+            then
+            begin
+              points[i].X := Round(temp^.data.Coordinates[temp^.data.nodes[i][0]
+                ][0]) + offset.X;
+              points[i].Y := Round(temp^.data.Coordinates[temp^.data.nodes[i][0]
+                ][1]) + offset.Y;
+              points[i].z :=
+                Round(temp^.data.Coordinates[temp^.data.nodes[i][0]][2]);
+            end;
+          except
+            continue;
+          end;
         end;
 
         // Добавляем два треугольника для каждого четырехугольника
@@ -636,56 +639,74 @@ begin
       var
         y1, y2, y3, y4: Integer;
 
+      x1 := -1;
+      x2 := -1;
+      x3 := -1;
+      x4 := -1;
+      y1 := -1;
+      y2 := -1;
+      y3 := -1;
+      y4 := -1;
+
       x1 := Round(vecTrianglesToRaster[i][0].X);
       x2 := Round(vecTrianglesToRaster[i][1].X);
       x3 := Round(vecTrianglesToRaster[i][2].X);
-      x4 := Round(vecTrianglesToRaster[i][3].X);
 
       y1 := Round(vecTrianglesToRaster[i][0].Y);
       y2 := Round(vecTrianglesToRaster[i][1].Y);
       y3 := Round(vecTrianglesToRaster[i][2].Y);
-      y4 := Round(vecTrianglesToRaster[i][3].Y);
+      if (vecTrianglesToRaster[i][3].X>0) and (vecTrianglesToRaster[i][3].X<1920) then
+      begin
 
-//      line1[0] := (vecTrianglesToRaster[i][1].X - offset.X) -
-//        (vecTrianglesToRaster[i][0].X - offset.X);
-//      line1[1] := (vecTrianglesToRaster[i][1].Y - offset.Y) -
-//        (vecTrianglesToRaster[i][0].Y - offset.Y);
-//      line1[2] := (vecTrianglesToRaster[i][1].z) -
-//        (vecTrianglesToRaster[i][0].z);
-//
-//      line2[0] := (vecTrianglesToRaster[i][2].X - offset.X) -
-//        (vecTrianglesToRaster[i][0].X - offset.X);
-//      line2[1] := (vecTrianglesToRaster[i][2].Y - offset.Y) -
-//        (vecTrianglesToRaster[i][0].Y - offset.Y);
-//      line2[2] := (vecTrianglesToRaster[i][2].z) -
-//        (vecTrianglesToRaster[i][0].z);
-//
-//      Normal[0] := line1[1] * line2[2] - line1[2] * line2[1];
-//      Normal[1] := line1[2] * line2[0] - line1[0] * line2[2];
-//      Normal[2] := line1[0] * line2[1] - line1[1] * line2[0];
-//
-//      l := Sqrt(Normal[0] * Normal[0] + Normal[1] * Normal[1] + Normal[2] *
-//        Normal[2]);
-//
-//      Normal[0] := Normal[0] / l;
-//      Normal[1] := Normal[1] / l;
-//      Normal[2] := Normal[2] / l;
-//
-//      dotProduct := Normal[0] * lightDirection[0] + Normal[1] * lightDirection
-//        [1] + Normal[2] * lightDirection[2];
+        x4 := Round(vecTrianglesToRaster[i][3].X);
+
+
+        y4 := Round(vecTrianglesToRaster[i][3].Y);
+      end;
+
+      // line1[0] := (vecTrianglesToRaster[i][1].X - offset.X) -
+      // (vecTrianglesToRaster[i][0].X - offset.X);
+      // line1[1] := (vecTrianglesToRaster[i][1].Y - offset.Y) -
+      // (vecTrianglesToRaster[i][0].Y - offset.Y);
+      // line1[2] := (vecTrianglesToRaster[i][1].z) -
+      // (vecTrianglesToRaster[i][0].z);
+      //
+      // line2[0] := (vecTrianglesToRaster[i][2].X - offset.X) -
+      // (vecTrianglesToRaster[i][0].X - offset.X);
+      // line2[1] := (vecTrianglesToRaster[i][2].Y - offset.Y) -
+      // (vecTrianglesToRaster[i][0].Y - offset.Y);
+      // line2[2] := (vecTrianglesToRaster[i][2].z) -
+      // (vecTrianglesToRaster[i][0].z);
+      //
+      // Normal[0] := line1[1] * line2[2] - line1[2] * line2[1];
+      // Normal[1] := line1[2] * line2[0] - line1[0] * line2[2];
+      // Normal[2] := line1[0] * line2[1] - line1[1] * line2[0];
+      //
+      // l := Sqrt(Normal[0] * Normal[0] + Normal[1] * Normal[1] + Normal[2] *
+      // Normal[2]);
+      //
+      // Normal[0] := Normal[0] / l;
+      // Normal[1] := Normal[1] / l;
+      // Normal[2] := Normal[2] / l;
+      //
+      // dotProduct := Normal[0] * lightDirection[0] + Normal[1] * lightDirection
+      // [1] + Normal[2] * lightDirection[2];
       var
       lightIntensity := Clamp(ambientIntensity + diffuseIntensity *
         Max(dotProduct[i], 0), 0, 1);
 
       // Вычисляем цвет грани в зависимости от интенсивности освещения
       // Brush.Color := DrawColor;
-      Pen.Color :=RGB(Round(100 * lightIntensity),
-        Round(255 * lightIntensity), Round(255 * lightIntensity));
+      Pen.Color := RGB(Round(100 * lightIntensity), Round(255 * lightIntensity),
+        Round(255 * lightIntensity));
       Brush.Color := RGB(Round(100 * lightIntensity),
         Round(255 * lightIntensity), Round(255 * lightIntensity));
-      Polygon([Point(x1, y1), Point(x2, y2), Point(x3, y3), Point(x4, y4)]);
+      if (x4=-1) and (y4=-1) then
+        Polygon([Point(x1, y1), Point(x2, y2), Point(x3, y3)])
+      else
+        Polygon([Point(x1, y1), Point(x2, y2), Point(x3, y3), Point(x4, y4)]);
     end;
-//    SetLength(dotProduct, 0);
+    // SetLength(dotProduct, 0);
   end;
 end;
 
@@ -714,24 +735,25 @@ begin
 end;
 
 procedure TFormSpineModel.FormClose(Sender: TObject; var Action: TCloseAction);
-var temp, temp2, endfacesTemp, endfacesTemp2: PFace;
+var
+  temp, temp2, endfacesTemp, endfacesTemp2: PFace;
 begin
-  tmr1.Enabled :=false;
-  temp2:=faces;
-  while temp2<>nil do
+  tmr1.Enabled := false;
+  temp2 := faces;
+  while temp2 <> nil do
   begin
-    temp:=temp2;
-    temp2:=temp2^.Next;
+    temp := temp2;
+    temp2 := temp2^.next;
     Dispose(temp);
   end;
 
-//  endfacesTemp2:=endfaces;
-//  while endfacesTemp2<>nil do
-//  begin
-//    endfacesTemp:=endfacesTemp2;
-//    endfacesTemp2:=endfacesTemp2^.Next;
-//    Dispose(endfacesTemp);
-//  end;
+  // endfacesTemp2:=endfaces;
+  // while endfacesTemp2<>nil do
+  // begin
+  // endfacesTemp:=endfacesTemp2;
+  // endfacesTemp2:=endfacesTemp2^.Next;
+  // Dispose(endfacesTemp);
+  // end;
 
 end;
 
@@ -740,8 +762,8 @@ begin
 
   ClientHeight := FormSpineModel.Height;
   ClientWidth := FormSpineModel.Width;
-  endfaces:=nil;
-  faces:=nil;
+  endfaces := nil;
+  faces := nil;
 
 end;
 
