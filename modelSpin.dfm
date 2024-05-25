@@ -1,10 +1,9 @@
 object FormSpineModel: TFormSpineModel
   Left = 0
   Top = 0
-  Align = alClient
   BorderStyle = bsSingle
   Caption = 'FormSpineModel'
-  ClientHeight = 1080
+  ClientHeight = 1081
   ClientWidth = 1920
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -12,10 +11,10 @@ object FormSpineModel: TFormSpineModel
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
-  FormStyle = fsStayOnTop
   Position = poDesktopCenter
   PrintScale = poPrintToFit
   OnActivate = FormActivate
+  OnClose = FormClose
   OnCreate = FormCreate
   TextHeight = 15
   object Label1: TLabel
@@ -42,21 +41,21 @@ object FormSpineModel: TFormSpineModel
       Left = 80
       Top = 40
       Width = 58
-      Height = 34
+      Height = 15
       Caption = #1052#1072#1089#1096#1090#1072#1073': '
     end
     object LabelY: TLabel
       Left = 80
       Top = 128
       Width = 58
-      Height = 34
+      Height = 15
       Caption = #1052#1072#1089#1096#1090#1072#1073': '
     end
     object LabelZ: TLabel
       Left = 80
       Top = 216
       Width = 58
-      Height = 34
+      Height = 15
       Caption = #1052#1072#1089#1096#1090#1072#1073': '
     end
     object UpDownX: TUpDown
@@ -121,8 +120,8 @@ object FormSpineModel: TFormSpineModel
     object Label2: TLabel
       Left = 104
       Top = 48
-      Width = 257
-      Height = 32
+      Width = 58
+      Height = 15
       Caption = #1052#1072#1089#1096#1090#1072#1073': '
     end
     object UpDown1: TUpDown

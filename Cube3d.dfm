@@ -18,6 +18,7 @@ object Form2: TForm2
     Width = 34
     Height = 15
     Caption = 'Label1'
+    Visible = False
   end
   object Button1: TButton
     Left = -8

@@ -7,10 +7,10 @@ uses
 
 type
   PPoint3D = ^TPoint3D;
-  TPoint3D = array [0 .. 2] of Double;
-  TPoint3DArray = array [0 .. 100000] of TPoint3D;
-  TPoint3DFace = array [0 .. 3] of TPoint3D;
-  TFacePoint = array [0 .. 3] of array [0 .. 2] of Integer;
+  TPoint3D = array [0 .. 3] of Double;
+  TPoint3DArray = array [0 .. 1000000] of TPoint3D;
+  TPoint3DFace = array [0 .. 4] of TPoint3D;
+  TFacePoint = array [0 .. 3] of array [0 .. 3] of Integer;
 
   PFaceData = ^TFaceData;
 
@@ -37,28 +37,10 @@ type
 procedure ParseLine(const Line: string; LabelOutput: TLabel;
   var Vershina, Normalies: TPoint3DArray; var Faces, EndFaces: PFace);
 procedure SavePFaceToFile(var face: PFace; const fileName: string);
-// procedure LoadPFaceFromFile(var faces, endfaces:pface;const fileName: string);
 
 implementation
 
 uses StrUtils;
-// Global variables
-
-// EndVershina: PNode;
-// EndNomalies: PNode;
-
-
-// Procedure to create a new node
-// function NewNodeFunc(Data: TPoint3D);
-// var
-// NewNode: PNode;
-// begin
-//
-// New(NewNode);
-// NewNode^.Data := Data;
-// NewNode^.Next := nil;
-// Result := NewNode;
-// end;
 
 procedure NewFaceFunc(var Faces, EndFaces: PFace; Data: TFaceData);
 var
@@ -80,29 +62,110 @@ begin
   end;
 end;
 
-// procedure AddNode(var Head, Tail: PNode; Data: TPoint3D);
-// var
-// NewNode: PNode;
-// begin
-// NewNode:=NewNodeFunc(Data);
-// if Head = nil then
-// begin
-// Head := NewNode;
-// Tail := NewNode;
-// end
-// else
-// begin
-// Tail^.Next := NewNode;
-// Tail := NewNode;
-// end;
-// end;
-
 var
   vershinaLength: Integer = 0;
   normalLength: Integer = 0;
 
+//procedure ParseLine(const Line: string; LabelOutput: TLabel;
+//  var Vershina, Normalies: TPoint3DArray; var Faces, EndFaces: PFace);
+//var
+//  Parts: TStringList;
+//  i, count: Integer;
+//  NewFace: PFace;
+//  FaceData: PFaceData;
+//begin
+//  Parts := TStringList.Create;
+//  try
+//    Parts.Delimiter := ' ';
+//    Parts.DelimitedText := Line;
+////    LabelOutput.Caption := Line;
+//    if Parts.count > 1 then
+//    begin
+//      if Parts[0] = 'v' then
+//      begin
+//        for i := 1 to 3 do
+//          Vershina[vershinaLength][i - 1] := StrToFloatDef(Parts[i], 0.0);
+//        inc(vershinaLength);
+//      end
+//      else if Parts[0] = 'vn' then
+//      begin
+//        for i := 1 to 3 do
+//          Normalies[normalLength][i - 1] := StrToFloatDef(Parts[i], 0.0);
+//        inc(normalLength);
+//      end
+//      else if Parts[0] = 'f' then
+//      begin
+//        New(FaceData);
+//        for i := 1 to Parts.count - 1 do
+//        begin
+//          try
+//            if ContainsText(Parts[i], '//') then
+//            begin
+//              count := Parts.count - 1;
+//              FaceData.Nodes[i - 1][0] :=
+//                StrToIntDef(Copy(Parts[i], 1, Pos('//', Parts[i]) - 1), 0);
+//
+////              FaceData.Nodes[i - 1][1] :=
+////                StrToIntDef(Copy(Parts[i], Pos('//', Parts[i]) + 2,
+////                Length(Parts[i])), 0);
+//            end
+//            else if ContainsText(Parts[i], '/') then
+//            begin
+//              count := Parts.count - 1;
+//              LabelOutput.Caption:= Copy(Parts[i], 1, Pos('/', Parts[i]) - 1);
+//              FaceData.Nodes[i - 1][0] :=
+//                StrToIntDef(Copy(Parts[i], 1, Pos('/', Parts[i]) - 1), 0);
+//
+////               FaceData.Nodes[i - 1][1] :=
+////               StrToIntDef(Copy(Parts[i], Pos('/', Parts[i]) + 1,
+////               Length(Parts[i])), 0);
+//            end
+//            else if not ContainsText(Parts[i], '/') then
+//            begin
+//              count := Parts.count - 1;
+//              LabelOutput.Caption:= Copy(Parts[i], 1, Pos('/', Parts[i]) - 1);
+//              FaceData.Nodes[i - 1][0] :=
+//                StrToIntDef(Copy(Parts[i], 1, Pos(' ', Parts[i]) - 1), 0);
+//
+////               FaceData.Nodes[i - 1][1] :=
+////               StrToIntDef(Copy(Parts[i], Pos('/', Parts[i]) + 1,
+////               Length(Parts[i])), 0);
+//            end;
+//
+//          except
+//            raise Exception.Create('Проблема при преоборазовании файла.')
+//          end;
+//
+//        end;
+//        for i := 0 to 3 do
+//        begin
+//        try
+//
+//            FaceData.Coordinates[i] := Vershina[FaceData.Nodes[i][0] - 1];
+//        except
+//          continue;
+//        end;
+////          FaceData.Normal[i] := Normalies[FaceData.Nodes[i][1] - 1];
+//        end;
+//        for i := 0 to 3 do
+//          FaceData.Nodes[i][0] := i;
+////        FaceData.Nodes[3][0] := 0;
+//
+//        NewFaceFunc(Faces, EndFaces, FaceData^);
+//        // Add new face to the linked list
+//
+//      end;
+//    end;
+//  finally
+//    Parts.Free;
+//  end;
+//end;
+
+
+
 procedure ParseLine(const Line: string; LabelOutput: TLabel;
-  var Vershina, Normalies: TPoint3DArray; var Faces, EndFaces: PFace);
+  var Vershina: TPoint3DArray; var Normalies: TPoint3DArray;
+  var Faces, EndFaces: PFace);
 var
   Parts: TStringList;
   i, count: Integer;
@@ -113,66 +176,50 @@ begin
   try
     Parts.Delimiter := ' ';
     Parts.DelimitedText := Line;
-//    LabelOutput.Caption := Line;
-    if Parts.count > 1 then
+
+    if Parts.Count > 1 then
     begin
       if Parts[0] = 'v' then
       begin
         for i := 1 to 3 do
           Vershina[vershinaLength][i - 1] := StrToFloatDef(Parts[i], 0.0);
-        inc(vershinaLength);
+        Inc(vershinaLength);
       end
-      else if Parts[0] = 'vn' then
-      begin
-        for i := 1 to 3 do
-          Normalies[normalLength][i - 1] := StrToFloatDef(Parts[i], 0.0);
-        inc(normalLength);
-      end
+//      else if Parts[0] = 'vn' then
+//      begin
+//        for i := 1 to 3 do
+//          Normalies[normaliesLength][i - 1] := StrToFloatDef(Parts[i], 0.0);
+//        Inc(normaliesLength);
+//      end
       else if Parts[0] = 'f' then
       begin
         New(FaceData);
-        for i := 1 to Parts.count - 1 do
+        for i := 1 to Parts.Count - 1 do
         begin
           try
-            if ContainsText(Parts[i], '//') then
+            if ContainsText(Parts[i], '/') then
             begin
-              count := Parts.count - 1;
-              FaceData.Nodes[i - 1][0] :=
-                StrToIntDef(Copy(Parts[i], 1, Pos('//', Parts[i]) - 1), 0);
-
-              FaceData.Nodes[i - 1][1] :=
-                StrToIntDef(Copy(Parts[i], Pos('//', Parts[i]) + 2,
-                Length(Parts[i])), 0);
+              FaceData^.Nodes[i - 1][0] := StrToIntDef(Copy(Parts[i], 1, Pos('/', Parts[i]) - 1), 0);
+              FaceData^.Nodes[i - 1][1] := StrToIntDef(Copy(Parts[i], Pos('/', Parts[i]) + 1, Length(Parts[i])), 0);
             end
-            else if ContainsText(Parts[i], '/') then
+            else
             begin
-              count := Parts.count - 1;
-              LabelOutput.Caption:= Copy(Parts[i], 1, Pos('/', Parts[i]) - 1);
-              FaceData.Nodes[i - 1][0] :=
-                StrToIntDef(Copy(Parts[i], 1, Pos('/', Parts[i]) - 1), 0);
-
-//               FaceData.Nodes[i - 1][1] :=
-//               StrToIntDef(Copy(Parts[i], Pos('/', Parts[i]) + 1,
-//               Length(Parts[i])), 0);
+              FaceData^.Nodes[i - 1][0] := StrToIntDef(Parts[i], 0);
             end;
-
           except
-            count := -2;
+            raise Exception.Create('Проблема при преоборазовании файла.');
           end;
-
         end;
-        for i := 0 to 2 do
+        for i := 0 to 3 do
         begin
-          FaceData.Coordinates[i] := Vershina[FaceData.Nodes[i][0] - 1];
-//          FaceData.Normal[i] := Normalies[FaceData.Nodes[i][1] - 1];
+          try
+            FaceData^.Coordinates[i] := Vershina[FaceData^.Nodes[i][0] - 1];
+//            FaceData^.Normal[i] := Normalies[FaceData^.Nodes[i][1] - 1];
+          except
+            continue;
+          end;
         end;
-        for i := 0 to 2 do
-          FaceData.Nodes[i][0] := i;
-        FaceData.Nodes[3][0] := 0;
-
         NewFaceFunc(Faces, EndFaces, FaceData^);
-        // Add new face to the linked list
-
       end;
     end;
   finally

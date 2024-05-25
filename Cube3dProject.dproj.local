@@ -2,13 +2,13 @@
 <BorlandProject>
 	<Transactions>
     <Transaction>2024/02/23 22:33:13.000.184,=\\Mac\Home\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
-    <Transaction>2024/02/23 22:35:28.000.539,\\Mac\Home\Documents\Embarcadero\Studio\Projects\Unit2.dfm=\\Mac\Home\Documents\Курсовая\canvas3d\Cube3d.dfm</Transaction>
-    <Transaction>2024/02/23 22:35:28.000.539,\\Mac\Home\Documents\Embarcadero\Studio\Projects\Unit2.pas=\\Mac\Home\Documents\Курсовая\canvas3d\Cube3d.pas</Transaction>
-    <Transaction>2024/02/23 22:35:50.000.545,\\Mac\Home\Documents\Embarcadero\Studio\Projects\Project5.dproj=\\Mac\Home\Documents\Курсовая\canvas3d\Cube3dProject.dproj</Transaction>
+    <Transaction>2024/02/23 22:35:28.000.539,\\Mac\Home\Documents\Курсовая\canvas3d\Cube3d.pas=\\Mac\Home\Documents\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
+    <Transaction>2024/02/23 22:35:28.000.539,\\Mac\Home\Documents\Курсовая\canvas3d\Cube3d.dfm=\\Mac\Home\Documents\Embarcadero\Studio\Projects\Unit2.dfm</Transaction>
+    <Transaction>2024/02/23 22:35:50.000.545,\\Mac\Home\Documents\Курсовая\canvas3d\Cube3dProject.dproj=\\Mac\Home\Documents\Embarcadero\Studio\Projects\Project5.dproj</Transaction>
     <Transaction>2024/03/08 18:38:03.000.092,=\\Mac\Home\Documents\Курсовая\canvas3d\Unit3.pas</Transaction>
-    <Transaction>2024/03/08 18:38:40.000.047,\\Mac\Home\Documents\Курсовая\canvas3d\Unit3.pas=\\Mac\Home\Documents\Курсовая\canvas3d\modelSpin.pas</Transaction>
-    <Transaction>2024/03/08 18:38:40.000.047,\\Mac\Home\Documents\Курсовая\canvas3d\Unit3.dfm=\\Mac\Home\Documents\Курсовая\canvas3d\modelSpin.dfm</Transaction>
+    <Transaction>2024/03/08 18:38:40.000.047,\\Mac\Home\Documents\Курсовая\canvas3d\modelSpin.pas=\\Mac\Home\Documents\Курсовая\canvas3d\Unit3.pas</Transaction>
+    <Transaction>2024/03/08 18:38:40.000.047,\\Mac\Home\Documents\Курсовая\canvas3d\modelSpin.dfm=\\Mac\Home\Documents\Курсовая\canvas3d\Unit3.dfm</Transaction>
     <Transaction>2024/04/16 23:29:40.000.714,=\\Mac\Home\Documents\Курсовая\canvas3d\Unit2.pas</Transaction>
-    <Transaction>2024/04/16 23:30:07.000.195,\\Mac\Home\Documents\Курсовая\canvas3d\modelFileModule.pas=\\Mac\Home\Documents\Курсовая\canvas3d\Unit2.pas</Transaction>
+    <Transaction>2024/04/16 23:30:07.000.195,\\Mac\Home\Documents\Курсовая\canvas3d\Unit2.pas=\\Mac\Home\Documents\Курсовая\canvas3d\modelFileModule.pas</Transaction>
   </Transactions>
 </BorlandProject>
