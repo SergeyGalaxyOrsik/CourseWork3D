@@ -3,8 +3,8 @@ object FormSpineModel: TFormSpineModel
   Top = 0
   BorderStyle = bsSingle
   Caption = 'FormSpineModel'
-  ClientHeight = 1081
-  ClientWidth = 1920
+  ClientHeight = 1049
+  ClientWidth = 1906
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,19 +17,6 @@ object FormSpineModel: TFormSpineModel
   OnClose = FormClose
   OnCreate = FormCreate
   TextHeight = 15
-  object Label1: TLabel
-    Left = 1136
-    Top = 524
-    Width = 69
-    Height = 32
-    Caption = 'Label1'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -24
-    Font.Name = 'Segoe UI'
-    Font.Style = []
-    ParentFont = False
-  end
   object GroupBox2: TGroupBox
     Left = 0
     Top = 111
@@ -40,23 +27,51 @@ object FormSpineModel: TFormSpineModel
     object LabelX: TLabel
       Left = 80
       Top = 40
-      Width = 58
+      Width = 93
       Height = 15
-      Caption = #1052#1072#1089#1096#1090#1072#1073': '
+      Caption = #1057#1084#1077#1097#1077#1085#1080#1077' '#1087#1086' X: '
     end
     object LabelY: TLabel
       Left = 80
       Top = 128
-      Width = 58
+      Width = 93
       Height = 15
-      Caption = #1052#1072#1089#1096#1090#1072#1073': '
+      Caption = #1057#1084#1077#1097#1077#1085#1080#1077' '#1087#1086' Y: '
     end
     object LabelZ: TLabel
       Left = 80
       Top = 216
-      Width = 58
+      Width = 93
       Height = 15
-      Caption = #1052#1072#1089#1096#1090#1072#1073': '
+      Caption = #1057#1084#1077#1097#1077#1085#1080#1077' '#1087#1086' Z: '
+    end
+    object LabelSize: TLabel
+      Left = 23
+      Top = 288
+      Width = 89
+      Height = 15
+      Caption = #1056#1072#1079#1084#1077#1088' '#1086#1076#1077#1078#1076#1099':'
+    end
+    object LabelColor: TLabel
+      Left = 23
+      Top = 375
+      Width = 29
+      Height = 15
+      Caption = #1062#1074#1077#1090':'
+    end
+    object LabelModel: TLabel
+      Left = 23
+      Top = 447
+      Width = 92
+      Height = 15
+      Caption = #1052#1086#1076#1077#1083#1100' '#1086#1076#1077#1078#1076#1099':'
+    end
+    object Label1: TLabel
+      Left = 23
+      Top = 511
+      Width = 26
+      Height = 15
+      Caption = #1055#1086#1083':'
     end
     object UpDownX: TUpDown
       Left = 23
@@ -109,6 +124,55 @@ object FormSpineModel: TFormSpineModel
       TabOrder = 3
       OnClick = UpDownZClick
     end
+    object ClotheSize: TComboBox
+      Left = 23
+      Top = 320
+      Width = 145
+      Height = 23
+      AutoCloseUp = True
+      TabOrder = 4
+      Text = 'Size'
+      OnChange = ClotheSizeChange
+    end
+    object ColorBox1: TColorBox
+      Left = 23
+      Top = 396
+      Width = 145
+      Height = 22
+      DefaultColorColor = clGray
+      NoneColorColor = clGray
+      Selected = clGray
+      Style = [cbStandardColors, cbExtendedColors, cbCustomColor]
+      BiDiMode = bdLeftToRight
+      Ctl3D = True
+      ParentBiDiMode = False
+      ParentCtl3D = False
+      TabOrder = 5
+      OnChange = ColorBox1Change
+    end
+    object ClotheModel: TComboBox
+      Left = 23
+      Top = 468
+      Width = 145
+      Height = 23
+      AutoCloseUp = True
+      TabOrder = 6
+      Text = 'Model'
+      OnChange = ClotheModelChange
+    end
+    object ComboGender: TComboBox
+      Left = 23
+      Top = 532
+      Width = 145
+      Height = 23
+      AutoCloseUp = True
+      TabOrder = 7
+      Text = #1052#1091#1078#1095#1080#1085#1072
+      OnChange = ComboGenderChange
+      Items.Strings = (
+        #1052#1091#1078#1095#1080#1085#1072
+        #1046#1077#1085#1097#1080#1085#1072)
+    end
   end
   object GroupBox1: TGroupBox
     Left = 0
@@ -136,14 +200,6 @@ object FormSpineModel: TFormSpineModel
       TabOrder = 0
       OnClick = UpDown1Click
     end
-  end
-  object ColorBox1: TColorBox
-    Left = 23
-    Top = 392
-    Width = 145
-    Height = 22
-    TabOrder = 2
-    OnChange = ColorBox1Change
   end
   object tmr1: TTimer
     Interval = 13

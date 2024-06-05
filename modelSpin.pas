@@ -6,12 +6,11 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls,
-  Vcl.StdCtrls;
+  Vcl.StdCtrls, modelFileModule;
 
 type
   TFormSpineModel = class(TForm)
     tmr1: TTimer;
-    Label1: TLabel;
     UpDown1: TUpDown;
     Button1: TButton;
     GroupBox1: TGroupBox;
@@ -24,6 +23,13 @@ type
     UpDownZ: TUpDown;
     LabelZ: TLabel;
     ColorBox1: TColorBox;
+    ClotheSize: TComboBox;
+    LabelSize: TLabel;
+    LabelColor: TLabel;
+    ClotheModel: TComboBox;
+    LabelModel: TLabel;
+    ComboGender: TComboBox;
+    Label1: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure tmr1Timer(Sender: TObject);
     procedure FormActivate(Sender: TObject);
@@ -35,6 +41,9 @@ type
     procedure UpDownYClick(Sender: TObject; Button: TUDBtnType);
     procedure ColorBox1Change(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure ClotheSizeChange(Sender: TObject);
+    procedure ComboGenderChange(Sender: TObject);
+    procedure ClotheModelChange(Sender: TObject);
 
   private
     { Private declarations }
@@ -42,37 +51,35 @@ type
     { Public declarations }
     // Faces:PFace;
     FilePath: String;
+    VTalia: TVershinaDynamic;
+    VBedra: TVershinaDynamic;
+    VShoulder: TVershinaDynamic;
+    VShoul_krai: TVershinaDynamic;
+
+    SizeCoof: Double;
+
+    coofTalia: Double;
+    coofBedra: Double;
+    coofShoulder: Double;
+    coofShoul_krai: Double;
+
+    gender: Integer;
 
   end;
 
 var
   FormSpineModel: TFormSpineModel;
-  nodes: TArray < TArray < double >> = [[-1, -1, -0.5], [-1, -1, 0.5],
-    [-1, 1, -1], [-1, 1, 1], [1, -1, -1], [1, -1, 1], [1, 1, -1], [1, 1, 1],
-    [0, 0, 0]];
-  // nodes: TArray<TArray<double>> = [[-1.3143, 15.0686,-1.6458], [-1.4575, 15.1137 ,-1.5916], [-1.3688, 15.2156, -1.6669],[-1.2726, 15.1795, -1.6948],[-1.3174, 15.2749, -1.7054],[-1.2444, 15.2717, -1.7287],[-1.4216, 15.2928, -1.6688],[-1.3357, 15.3383, -1.7143],[-1.4552, 15.3808, -1.6810]];
-  edges: TArray < TArray < Integer >> = [[0, 1], [1, 2], [2, 0], [2, 3], [3, 4],
-    [4, 2], [4, 5], [5, 6], [6, 4]];
-  // nodes:TFace = Vershina;
-  radius: double = 1;
-  radius2: double = 1;
-  angle: Integer = 10;
-  circleNode: array of array of double;
-  circleEdges: array of array of Integer;
-  circleNodeY: array of array of double;
-  circleEdgesY: array of array of Integer;
-  circlePoint: Integer;
-  // procedure LoadPFaceFromFile(const fileName: string);
 
 implementation
 
-uses Cube3d, modelFileModule, Math, System.Generics.Collections;
+uses MainPage, Math, System.Generics.Collections, dlc, TypInfo, ScaleModule;
 {$R *.dfm}
 
 type
-  TDouble3 = array [0 .. 2] of double;
+  TDouble3 = array [0 .. 2] of Double;
   TChar10 = array [0 .. 9] of Char;
 
+  // Global Variebles
 var
   faces: PFace;
   endfaces: PFace;
@@ -82,9 +89,12 @@ var
   bufFactorY: Integer = 10;
   bufFactorZ: Integer = 10;
   bufFactorAll: Integer = 10;
-  viewPoint: TDouble3 = (0, 0, 0);
 
-  DrawColor: TColor = clBlack;
+  // Cooficiente var
+  taliaCoof: Double;
+  bedraCoof: Double;
+  shoulderCoof: Double;
+  shoul_kraiCoof: Double;
 
 procedure AppendModelFromFile(Item: TFaceData);
 var
@@ -122,7 +132,6 @@ begin
     assign(modelFile, fileName);
     reset(modelFile);
     Read(modelFile, temp);
-    // listOrder.data.id := OrderData.id;
     while not EOF(modelFile) do
     begin
       Read(modelFile, temp);
@@ -132,126 +141,7 @@ begin
   end
 end;
 
-procedure Scale(factor: TArray<double>);
-var
-  temp: PFace;
-begin
-  temp := faces;
-  while temp <> nil do
-  begin
-    for var i := 0 to High(temp.data.Coordinates) do
-      for var f := 0 to High(factor) do
-        temp^.data.Coordinates[i][f] := temp^.data.Coordinates[i][f] *
-          factor[f];
-
-    // for var i := 0 to High(temp.data.Normal) do
-    // for var f := 0 to High(factor) do
-    // temp^.data.Normal[i][f] := temp^.data.Normal[i][f] * factor[f];
-    temp := temp.next;
-  end;
-  viewPoint[0] := viewPoint[0] + factor[0];
-  viewPoint[1] := viewPoint[1] + factor[1];
-  viewPoint[2] := viewPoint[2] + factor[2];
-end;
-
-procedure DeScale(factor: TArray<double>);
-var
-  temp: PFace;
-begin
-  temp := faces;
-  while temp <> nil do
-  begin
-    for var i := 0 to High(temp.data.Coordinates) do
-      for var f := 0 to High(factor) do
-        temp^.data.Coordinates[i][f] := temp^.data.Coordinates[i][f] /
-          factor[f];
-    temp := temp.next;
-  end;
-end;
-
-procedure DeScaleOne(factor: double; const caseVal: Char);
-var
-  temp: PFace;
-begin
-  temp := faces;
-
-  case caseVal of
-    'x':
-      begin
-        while temp <> nil do
-        begin
-          for var i := 0 to High(temp.data.Coordinates) do
-            temp^.data.Coordinates[i][0] := temp^.data.Coordinates[i]
-              [0] - factor;
-          temp := temp.next;
-        end;
-      end;
-    'y':
-      begin
-        while temp <> nil do
-        begin
-          for var i := 0 to High(temp.data.Coordinates) do
-            temp^.data.Coordinates[i][1] := temp^.data.Coordinates[i]
-              [1] + factor;
-          temp := temp.next;
-        end;
-      end;
-    'z':
-      begin
-        while temp <> nil do
-        begin
-          for var i := 0 to High(temp.data.Coordinates) do
-            temp^.data.Coordinates[i][2] := temp^.data.Coordinates[i]
-              [2] - factor;
-          temp := temp.next;
-        end;
-      end;
-  end;
-
-end;
-
-procedure ScaleOne(factor: double; const caseVal: Char);
-var
-  temp: PFace;
-begin
-
-  temp := faces;
-
-  case caseVal of
-    'x':
-      begin
-        while temp <> nil do
-        begin
-          for var i := 0 to High(temp.data.Coordinates) do
-            temp^.data.Coordinates[i][0] := temp^.data.Coordinates[i]
-              [0] + factor;
-          temp := temp.next;
-        end;
-      end;
-    'y':
-      begin
-        while temp <> nil do
-        begin
-          for var i := 0 to High(temp.data.Coordinates) do
-            temp^.data.Coordinates[i][1] := temp^.data.Coordinates[i]
-              [1] - factor;
-          temp := temp.next;
-        end;
-      end;
-    'z':
-      begin
-        while temp <> nil do
-        begin
-          for var i := 0 to High(temp.data.Coordinates) do
-            temp^.data.Coordinates[i][2] := temp^.data.Coordinates[i]
-              [2] + factor;
-          temp := temp.next;
-        end;
-      end;
-  end;
-end;
-
-procedure RotateCuboid(var faces: PFace; angleX, angleY: double);
+procedure RotateCuboid(var faces: PFace; angleX, angleY: Double);
 var
   temp: PFace;
   // X, Y, z, Xn, Yn, zn: double;
@@ -286,9 +176,6 @@ begin
       // change coordinates
       temp^.data.Coordinates[i][0] := X * cosX - z * sinX;
       temp^.data.Coordinates[i][2] := z * cosX + X * sinX;
-      // change normal
-      temp^.data.Normal[i][0] := Xn * cosX - zn * sinX;
-      temp^.data.Normal[i][2] := zn * cosX + Xn * sinX;
 
       // change x
       z := temp^.data.Coordinates[i][2];
@@ -297,138 +184,104 @@ begin
       // change coordinates
       temp^.data.Coordinates[i][1] := Y * cosY - z * sinY;
       temp^.data.Coordinates[i][2] := z * cosY + Y * sinY;
-      // change normal
-      temp^.data.Normal[i][1] := Yn * cosY - zn * sinY;
-      temp^.data.Normal[i][2] := zn * cosY + Yn * sinY;
-      // X := temp^.data.Coordinates[i][0];
-      // Y := temp^.data.Coordinates[i][1];
-      // z := temp^.data.Coordinates[i][2];
-      // Xn := temp^.data.Normal[i][0];
-      // Yn := temp^.data.Normal[i][1];
-      // zn := temp^.data.Normal[i][2];
-      //
-      // // change coordinates
-      // temp^.data.Coordinates[i][0] := X * cosX - z * sinX;
-      // temp^.data.Coordinates[i][1] := Y * cosY - (z * cosX + X * sinX) * sinY;
-      // temp^.data.Coordinates[i][2] := (z * cosX + X * sinX) * cosY + Y * sinY;
-      //
-      // // change normal
-      // temp^.data.Normal[i][0] := Xn * cosX - zn * sinX;
-      // temp^.data.Normal[i][1] := Yn * cosY - (zn * cosX + Xn * sinX) * sinY;
-      // temp^.data.Normal[i][2] := (zn * cosX + Xn * sinX) * cosY + Yn * sinY;
     end;
     temp := temp^.next;
 
   end;
+
+  for var i := 0 to High(FormSpineModel.VTalia) do
+  begin
+    var
+    X := FormSpineModel.VTalia[i][0];
+    var
+    Y := FormSpineModel.VTalia[i][1];
+    var
+    z := FormSpineModel.VTalia[i][2];
+
+    // change coordinates
+    FormSpineModel.VTalia[i][0] := X * cosX - z * sinX;
+    FormSpineModel.VTalia[i][2] := z * cosX + X * sinX;
+
+    // change x
+    z := FormSpineModel.VTalia[i][2];
+
+    // change coordinates
+    FormSpineModel.VTalia[i][1] := Y * cosY - z * sinY;
+    FormSpineModel.VTalia[i][2] := z * cosY + Y * sinY;
+  end;
+
+  for var i := 0 to High(FormSpineModel.VBedra) do
+  begin
+    var
+    X := FormSpineModel.VBedra[i][0];
+    var
+    Y := FormSpineModel.VBedra[i][1];
+    var
+    z := FormSpineModel.VBedra[i][2];
+
+    // change coordinates
+    FormSpineModel.VBedra[i][0] := X * cosX - z * sinX;
+    FormSpineModel.VBedra[i][2] := z * cosX + X * sinX;
+
+    // change x
+    z := FormSpineModel.VBedra[i][2];
+
+    // change coordinates
+    FormSpineModel.VBedra[i][1] := Y * cosY - z * sinY;
+    FormSpineModel.VBedra[i][2] := z * cosY + Y * sinY;
+  end;
+
+  for var i := 0 to High(FormSpineModel.VShoulder) do
+  begin
+    var
+    X := FormSpineModel.VShoulder[i][0];
+    var
+    Y := FormSpineModel.VShoulder[i][1];
+    var
+    z := FormSpineModel.VShoulder[i][2];
+
+    // change coordinates
+    FormSpineModel.VShoulder[i][0] := X * cosX - z * sinX;
+    FormSpineModel.VShoulder[i][2] := z * cosX + X * sinX;
+
+    // change x
+    z := FormSpineModel.VShoulder[i][2];
+
+    // change coordinates
+    FormSpineModel.VShoulder[i][1] := Y * cosY - z * sinY;
+    FormSpineModel.VShoulder[i][2] := z * cosY + Y * sinY;
+  end;
+
+  for var i := 0 to High(FormSpineModel.VShoul_krai) do
+  begin
+    var
+    X := FormSpineModel.VShoul_krai[i][0];
+    var
+    Y := FormSpineModel.VShoul_krai[i][1];
+    var
+    z := FormSpineModel.VShoul_krai[i][2];
+
+    // change coordinates
+    FormSpineModel.VShoul_krai[i][0] := X * cosX - z * sinX;
+    FormSpineModel.VShoul_krai[i][2] := z * cosX + X * sinX;
+
+    // change x
+    z := FormSpineModel.VShoul_krai[i][2];
+
+    // change coordinates
+    FormSpineModel.VShoul_krai[i][1] := Y * cosY - z * sinY;
+    FormSpineModel.VShoul_krai[i][2] := z * cosY + Y * sinY;
+  end;
 end;
 
-// function DrawCuboid(var faces: PFace; X, Y, w, h: Integer): TBitmap;
-// var
-// offset, offset2: TPoint;
-// fangle: Integer;
-// temp: PFace;
-// a: Integer;
-// vec: TDouble3;
-// b: double;
-// Normal: array [0 .. 2] of double;
-// l: double;
-// line1: array [0 .. 2] of double;
-// line2: array [0 .. 2] of double;
-// dotProduct: double;
-//
-// begin
-// Result := TBitmap.Create;
-// Result.SetSize(w, h);
-// RotateCuboid(faces, PI / 180, 0);
-// offset := TPoint.Create(X, Y * 2);
-//
-// with Result.canvas do
-// begin
-// temp := faces;
-// Brush.Color := clWhite;
-// Brush.Style := bsSolid;
-// Pen.Color := DrawColor;
-// a := 0;
-//
-// FillRect(ClipRect);
-// while temp <> nil do
-// begin
-//
-// line1[0] := temp^.data.Coordinates[temp^.data.nodes[1][0]][0] -
-// temp^.data.Coordinates[temp^.data.nodes[0][0]][0];
-// line1[1] := temp^.data.Coordinates[temp^.data.nodes[1][0]][1] -
-// temp^.data.Coordinates[temp^.data.nodes[0][0]][1];
-// line1[2] := temp^.data.Coordinates[temp^.data.nodes[1][0]][2] -
-// temp^.data.Coordinates[temp^.data.nodes[0][0]][2];
-//
-// line2[0] := temp^.data.Coordinates[temp^.data.nodes[2][0]][0] -
-// temp^.data.Coordinates[temp^.data.nodes[0][0]][0];
-// line2[1] := temp^.data.Coordinates[temp^.data.nodes[2][0]][1] -
-// temp^.data.Coordinates[temp^.data.nodes[0][0]][1];
-// line2[2] := temp^.data.Coordinates[temp^.data.nodes[2][0]][2] -
-// temp^.data.Coordinates[temp^.data.nodes[0][0]][2];
-//
-// Normal[0] := line1[1] * line2[2] - line1[2] * line2[1];
-// Normal[1] := line1[2] * line2[0] - line1[0] * line2[2];
-// Normal[2] := line1[0] * line2[1] - line1[1] * line2[0];
-//
-// l := sqrt(Normal[0] * Normal[0] + Normal[1] * Normal[1] + Normal[2] *
-// Normal[2]);
-//
-// Normal[0] := Normal[0] / l;
-// Normal[1] := Normal[1] / l;
-// Normal[2] := Normal[2] / l;
-//
-// dotProduct := Normal[0] * (temp^.data.Coordinates[temp^.data.nodes[0][0]]
-// [0] ) + Normal[1] * (temp^.data.Coordinates[temp^.data.nodes[0][0]]
-// [1] ) + Normal[2] *
-// (temp^.data.Coordinates[temp^.data.nodes[0][0]][2] );
-//
-// if Normal[2] < 0 then
-// begin
-// for var i := 0 to 2 do
-// begin
-//
-// var
-// p1 := (temp^.data.Coordinates[temp^.data.nodes[i][0]]);
-// var
-// p2 := (temp^.data.Coordinates[temp^.data.nodes[i + 1][0]]);
-// moveTo(Trunc(p1[0]) + offset.X, Trunc(p1[1]) + offset.Y);
-// lineTo(Trunc(p2[0]) + offset.X, Trunc(p2[1]) + offset.Y);
-// end;
-// end;
-//
-// temp := temp^.next;
-//
-// end;
-// end;
-// end;
-
 type
-  TDoubleArray3 = array [0 .. 2] of double;
+  TDoubleArray3 = array [0 .. 2] of Double;
 
   TPointOwn = record
     X, Y, z: Single;
   end;
 
   TTriangle = array [0 .. 3] of TPointOwn;
-
-  // function IsInViewFrustum(const p, cameraPos, cameraDir: TPoint3D; hFOV, vFOV, nearPlane, farPlane: Double): Boolean;
-  // var
-  // toPoint: TDoubleArray3;
-  // distance: Double;
-  // begin
-  // // Вычисляем вектор от камеры до точки
-  // toPoint[0] := p[0] - cameraPos[0];
-  // toPoint[1] := p[1] - cameraPos[1];
-  // toPoint[2] := p[2] - cameraPos[2];
-  //
-  // // Вычисляем расстояние до точки
-  // distance := sqrt(toPoint[0] * toPoint[0] + toPoint[1] * toPoint[1] + toPoint[2] * toPoint[2]);
-  //
-  // // Проверяем, находится ли точка в пределах видимости камеры
-  // Result := (distance >= nearPlane) and (distance <= farPlane);
-  // end;
 
 function CompareTriangles(const Left, Right: TTriangle): Boolean;
 var
@@ -437,25 +290,23 @@ begin
   z1 := (Left[0].z + Left[1].z + Left[2].z) / 3.0;
   z2 := (Right[0].z + Right[1].z + Right[2].z) / 3.0;
 
-  Result := z1 > z2; // Reversed the comparison to sort in descending order
+  Result := z1 > z2;
 end;
 
-procedure QuickSort(var arr: array of TTriangle; var arrN: array of double;
+procedure QuickSort(var arr: array of TTriangle; var arrN: array of Double;
   Left, Right: Integer);
 var
   i, J: Integer;
   Pivot, temp: TTriangle;
-  tempN: double;
+  tempN: Double;
 begin
   i := Left;
   J := Right;
   Pivot := arr[(Left + Right) div 2];
   repeat
     while CompareTriangles(arr[i], Pivot) do
-      // Reversed the comparison to sort in descending order
       i := i + 1;
     while CompareTriangles(Pivot, arr[J]) do
-      // Reversed the comparison to sort in descending order
       J := J - 1;
     if i <= J then
     begin
@@ -475,25 +326,6 @@ begin
     QuickSort(arr, arrN, i, Right);
 end;
 
-function IsInViewFrustum(const p, cameraPos, cameraDir: TPoint3D;
-  hFOV, vFOV, nearPlane, farPlane: double): Boolean;
-var
-  toPoint: TDoubleArray3;
-  distance: double;
-begin
-  // вычисляем вектор от камеры до точки
-  toPoint[0] := p[0] - cameraPos[0];
-  toPoint[1] := p[1] - cameraPos[1];
-  toPoint[2] := p[2] - cameraPos[2];
-
-  // вычисляем расстояние до точки
-  distance := Sqrt(toPoint[0] * toPoint[0] + toPoint[1] * toPoint[1] +
-    toPoint[2] * toPoint[2]);
-
-  // проверяем, находится ли точка в пределах видимости камеры
-  Result := (distance >= nearPlane) and (distance <= farPlane);
-end;
-
 function Clamp(Value, Min, Max: Single): Single;
 begin
   if Value < Min then
@@ -504,23 +336,29 @@ begin
     Result := Value;
 end;
 
+var
+  lightIntensity: Double;
+  R: Byte = 128;
+  G: Byte = 128;
+  B: Byte = 128;
+
 function DrawCuboid(var faces: PFace; X, Y, w, h: Integer): TBitmap;
 var
   offset: TPoint;
   temp: PFace;
   line1, line2, Normal, toCamera: TDoubleArray3;
   vecTrianglesToRaster: array of TTriangle;
-  l: double;
-  dotProduct: array of double;
+  l: Double;
+  dotProduct: array of Double;
   points: TTriangle;
 
   // Параметры камеры
   cameraPos: TPoint3D;
   cameraDir: TPoint3D;
-  hFOV, vFOV, nearPlane, farPlane: double;
+  hFOV, vFOV, nearPlane, farPlane: Double;
   // Параметры освещения
   lightDirection: TDoubleArray3;
-  ambientIntensity, diffuseIntensity: double;
+  ambientIntensity, diffuseIntensity: Double;
 
 begin
   Result := TBitmap.Create;
@@ -552,8 +390,7 @@ begin
   with Result.Canvas do
   begin
     Brush.Color := clWhite;
-    // Brush.Style := bsSolid;
-    Pen.Color := Transparent; // или любой другой цвет для рисования границ
+    Pen.Color := Transparent;
 
     FillRect(ClipRect);
     temp := faces;
@@ -591,8 +428,6 @@ begin
       toCamera[2] := temp^.data.Coordinates[temp^.data.nodes[0][0]][2] -
         cameraPos[2];
 
-      // dotProduct := Normal[0] * toCamera[0] + Normal[1] * toCamera[1] + Normal[2] * toCamera[2];
-
       // Проверяем видимость каждой грани кубоида
       if (Normal[2] < 0) then
       begin
@@ -612,6 +447,12 @@ begin
                 ][1]) + offset.Y;
               points[i].z :=
                 Round(temp^.data.Coordinates[temp^.data.nodes[i][0]][2]);
+            end
+            else
+            begin
+              points[i].X := -10000000000000;
+              points[i].Y := -10000000000000;
+              points[i].z := -10000000000000;
             end;
           except
             continue;
@@ -655,53 +496,25 @@ begin
       y1 := Round(vecTrianglesToRaster[i][0].Y);
       y2 := Round(vecTrianglesToRaster[i][1].Y);
       y3 := Round(vecTrianglesToRaster[i][2].Y);
-      if (vecTrianglesToRaster[i][3].X>0) and (vecTrianglesToRaster[i][3].X<1920) then
+
+      // Проверка на дополнительные координаты
+      if (vecTrianglesToRaster[i][3].X > 0) and
+        (vecTrianglesToRaster[i][3].X < 1920) then
       begin
-
         x4 := Round(vecTrianglesToRaster[i][3].X);
-
-
         y4 := Round(vecTrianglesToRaster[i][3].Y);
       end;
 
-      // line1[0] := (vecTrianglesToRaster[i][1].X - offset.X) -
-      // (vecTrianglesToRaster[i][0].X - offset.X);
-      // line1[1] := (vecTrianglesToRaster[i][1].Y - offset.Y) -
-      // (vecTrianglesToRaster[i][0].Y - offset.Y);
-      // line1[2] := (vecTrianglesToRaster[i][1].z) -
-      // (vecTrianglesToRaster[i][0].z);
-      //
-      // line2[0] := (vecTrianglesToRaster[i][2].X - offset.X) -
-      // (vecTrianglesToRaster[i][0].X - offset.X);
-      // line2[1] := (vecTrianglesToRaster[i][2].Y - offset.Y) -
-      // (vecTrianglesToRaster[i][0].Y - offset.Y);
-      // line2[2] := (vecTrianglesToRaster[i][2].z) -
-      // (vecTrianglesToRaster[i][0].z);
-      //
-      // Normal[0] := line1[1] * line2[2] - line1[2] * line2[1];
-      // Normal[1] := line1[2] * line2[0] - line1[0] * line2[2];
-      // Normal[2] := line1[0] * line2[1] - line1[1] * line2[0];
-      //
-      // l := Sqrt(Normal[0] * Normal[0] + Normal[1] * Normal[1] + Normal[2] *
-      // Normal[2]);
-      //
-      // Normal[0] := Normal[0] / l;
-      // Normal[1] := Normal[1] / l;
-      // Normal[2] := Normal[2] / l;
-      //
-      // dotProduct := Normal[0] * lightDirection[0] + Normal[1] * lightDirection
-      // [1] + Normal[2] * lightDirection[2];
-      var
       lightIntensity := Clamp(ambientIntensity + diffuseIntensity *
         Max(dotProduct[i], 0), 0, 1);
 
-      // Вычисляем цвет грани в зависимости от интенсивности освещения
-      // Brush.Color := DrawColor;
-      Pen.Color := RGB(Round(100 * lightIntensity), Round(255 * lightIntensity),
-        Round(255 * lightIntensity));
-      Brush.Color := RGB(Round(100 * lightIntensity),
-        Round(255 * lightIntensity), Round(255 * lightIntensity));
-      if (x4=-1) and (y4=-1) then
+      Pen.Color := RGB(Round(R * lightIntensity), Round(G * lightIntensity),
+        Round(B * lightIntensity));
+
+      Brush.Color := RGB(Round(R * lightIntensity), Round(G * lightIntensity),
+        Round(B * lightIntensity));
+
+      if (x4 = -1) and (y4 = -1) then
         Polygon([Point(x1, y1), Point(x2, y2), Point(x3, y3)])
       else
         Polygon([Point(x1, y1), Point(x2, y2), Point(x3, y3), Point(x4, y4)]);
@@ -712,21 +525,99 @@ end;
 
 procedure TFormSpineModel.Button1Click(Sender: TObject);
 begin
-  Label1.Caption := 'STOPPED';
   tmr1.Enabled := not tmr1.Enabled;
+
+end;
+
+procedure TFormSpineModel.ClotheModelChange(Sender: TObject);
+var
+  coof: TModelCof;
+begin
+  tmr1.Enabled := false;
+  coof := Model2Coof(TModels(ClotheModel.ItemIndex));
+  ChangeModel(faces, coofTalia, coofBedra, coofShoulder, coofShoul_krai,
+    coof.Talia, coof.Bedra, coof.Shoulder, coof.Shoul_krai);
+  coofTalia:=coof.Talia;
+  coofBedra:=coof.Bedra;
+  coofShoulder:=coof.Shoulder;
+  coofShoul_krai:=coof.Shoul_krai;
+  tmr1.Enabled := true;
+end;
+
+procedure TFormSpineModel.ClotheSizeChange(Sender: TObject);
+var
+  Sizes: TSizes;
+  coof: Double;
+begin
+  if gender = 0 then
+  begin
+    tmr1.Enabled := false;
+    coof := Size2CoofMan(TSizes(ClotheSize.ItemIndex));
+
+    ChangeSize(faces, coof, SizeCoof);
+    SizeCoof := coof;
+
+    tmr1.Enabled := true;
+  end
+  else if gender = 1 then
+  begin
+    tmr1.Enabled := false;
+    coof := Size2CoofFemale(TSizes(ClotheSize.ItemIndex));
+
+    ChangeSize(faces, coof, SizeCoof);
+    SizeCoof := coof;
+
+    tmr1.Enabled := true;
+  end;
 end;
 
 procedure TFormSpineModel.ColorBox1Change(Sender: TObject);
 begin
-  DrawColor := ColorBox1.Selected;
+  tmr1.Enabled := false;
+  R := GetRValue(ColorBox1.Selected);
+  G := GetGValue(ColorBox1.Selected);
+  B := GetBValue(ColorBox1.Selected);
+  tmr1.Enabled := true;
+end;
+
+procedure TFormSpineModel.ComboGenderChange(Sender: TObject);
+var
+  coof: Double;
+begin
+  gender := ComboGender.ItemIndex;
+  if ClotheSize.ItemIndex <> -1 then
+  begin
+    if gender = 0 then
+    begin
+      tmr1.Enabled := false;
+      coof := Size2CoofMan(TSizes(ClotheSize.ItemIndex));
+
+      ChangeSize(faces, coof, SizeCoof);
+      SizeCoof := coof;
+
+      tmr1.Enabled := true;
+    end
+    else if gender = 1 then
+    begin
+      tmr1.Enabled := false;
+      coof := Size2CoofFemale(TSizes(ClotheSize.ItemIndex));
+
+      ChangeSize(faces, coof, SizeCoof);
+      SizeCoof := coof;
+
+      tmr1.Enabled := true;
+    end;
+  end;
+
 end;
 
 procedure TFormSpineModel.FormActivate(Sender: TObject);
 begin
-  DoubleBuffered := True;
+  DoubleBuffered := true;
 
   LoadPFaceFromFile(FilePath);
-  Scale([bufFactorX, bufFactorY, bufFactorZ]);
+  Scale(faces, [bufFactorX, bufFactorY, bufFactorZ], VTalia, VShoulder, VBedra,
+    VShoul_krai);
   RotateCuboid(faces, ArcTan(Sqrt(2)), PI);
   Label2.Caption := 'Масштаб: ' + IntToStr(bufFactorAll);
   LabelX.Caption := 'Масштаб X: ' + IntToStr(bufFactorX);
@@ -738,6 +629,7 @@ procedure TFormSpineModel.FormClose(Sender: TObject; var Action: TCloseAction);
 var
   temp, temp2, endfacesTemp, endfacesTemp2: PFace;
 begin
+  // Восстанавливаем параметры по умолчанию
   tmr1.Enabled := false;
   temp2 := faces;
   while temp2 <> nil do
@@ -747,70 +639,101 @@ begin
     Dispose(temp);
   end;
 
-  // endfacesTemp2:=endfaces;
-  // while endfacesTemp2<>nil do
-  // begin
-  // endfacesTemp:=endfacesTemp2;
-  // endfacesTemp2:=endfacesTemp2^.Next;
-  // Dispose(endfacesTemp);
-  // end;
+  FilePath := '';
+  SetLength(VTalia, 0);
+  SetLength(VBedra, 0);
+  SetLength(VShoulder, 0);
+  SetLength(VShoul_krai, 0);
+
+  facesCount := 0;
+  light[0] := 30;
+  light[1] := 30;
+  light[2] := -50;
+  bufFactorX := 10;
+  bufFactorY := 10;
+  bufFactorZ := 10;
+  bufFactorAll := 10;
+  SizeCoof := 1;
+  coofTalia := 1;
+  coofBedra := 1;
+  coofShoulder := 1;
+  coofShoul_krai := 1;
+  gender := 0;
 
 end;
 
 procedure TFormSpineModel.FormCreate(Sender: TObject);
+var
+  Sizes: TSizes;
+  Models: TModels;
 begin
-
+  // устанавливаем размеры для поля отрисовки
   ClientHeight := FormSpineModel.Height;
   ClientWidth := FormSpineModel.Width;
+
+  // обнуляем списки
   endfaces := nil;
   faces := nil;
 
+  // устанавливаем коэффициент размеров
+  SizeCoof := 1;
+  coofTalia := 1;
+  coofBedra := 1;
+  coofShoulder := 1;
+  coofShoul_krai := 1;
+  gender := 0;
+
+  for Sizes := Low(TSizes) to High(TSizes) do
+    ClotheSize.Items.Add(GetEnumName(TypeInfo(TSizes), Ord(Sizes)));
+  for Models := Low(TModels) to High(TModels) do
+    ClotheModel.Items.Add(GetEnumName(TypeInfo(TModels), Ord(Models)));
 end;
 
 procedure TFormSpineModel.tmr1Timer(Sender: TObject);
 var
   buffer: TBitmap;
 begin
-
   buffer := DrawCuboid(faces, (ClientWidth - GroupBox2.Width) div 2,
     ClientHeight div 2, ClientWidth, ClientHeight);
   Canvas.Draw(FormSpineModel.GroupBox2.Width, 0, buffer);
-  // canvas.Polygon();
-  // canvas.Free;
   buffer.Free;
 end;
 
 procedure TFormSpineModel.UpDown1Click(Sender: TObject; Button: TUDBtnType);
 begin
-  DeScale([bufFactorAll, bufFactorAll, bufFactorAll]);
-  Scale([UpDown1.Position, UpDown1.Position, UpDown1.Position]);
+  DeScale(faces, [bufFactorAll, bufFactorAll, bufFactorAll], VTalia, VShoulder,
+    VBedra, VShoul_krai);
+  Scale(faces, [UpDown1.Position, UpDown1.Position, UpDown1.Position], VTalia,
+    VShoulder, VBedra, VShoul_krai);
   bufFactorAll := UpDown1.Position;
-  // Label1.Caption := IntToStr(UpDown1.Position);
   Label2.Caption := 'Масштаб: ' + IntToStr(UpDown1.Position);
 end;
 
 procedure TFormSpineModel.UpDownXClick(Sender: TObject; Button: TUDBtnType);
 begin
-  DeScaleOne(bufFactorX, 'x');
-  ScaleOne(UpDownX.Position, 'x');
+  DeScaleOne(faces, bufFactorX, 'x', VTalia, VShoulder, VBedra, VShoul_krai);
+  ScaleOne(faces, UpDownX.Position, 'x', VTalia, VShoulder, VBedra,
+    VShoul_krai);
   bufFactorX := UpDownX.Position;
-  LabelX.Caption := 'Масштаб X: ' + IntToStr(UpDownX.Position);
+  LabelX.Caption := 'Смещение X: ' + IntToStr(UpDownX.Position);
 end;
 
 procedure TFormSpineModel.UpDownZClick(Sender: TObject; Button: TUDBtnType);
 begin
-  DeScaleOne(bufFactorZ, 'z');
-  ScaleOne(UpDownZ.Position, 'z');
+  DeScaleOne(faces, bufFactorZ, 'z', VTalia, VShoulder, VBedra, VShoul_krai);
+  ScaleOne(faces, UpDownZ.Position, 'z', VTalia, VShoulder, VBedra,
+    VShoul_krai);
   bufFactorZ := UpDownZ.Position;
-  LabelZ.Caption := 'Масштаб Z: ' + IntToStr(UpDownZ.Position);
+  LabelZ.Caption := 'Смещение Z: ' + IntToStr(UpDownZ.Position);
 end;
 
 procedure TFormSpineModel.UpDownYClick(Sender: TObject; Button: TUDBtnType);
 begin
-  DeScaleOne(bufFactorY, 'y');
-  ScaleOne(UpDownY.Position, 'y');
+  DeScaleOne(faces, bufFactorY, 'y', VTalia, VShoulder, VBedra, VShoul_krai);
+  ScaleOne(faces, UpDownY.Position, 'y', VTalia, VShoulder, VBedra,
+    VShoul_krai);
   bufFactorY := UpDownY.Position;
-  LabelY.Caption := 'Масштаб Y: ' + IntToStr(UpDownY.Position);
+  LabelY.Caption := 'Смещение Y: ' + IntToStr(UpDownY.Position);
 end;
 
 end.
