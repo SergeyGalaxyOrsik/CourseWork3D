@@ -11,14 +11,49 @@ uses modelFileModule, Winapi.Windows, Winapi.Messages, System.SysUtils,
 type
   TClothing = (
     // Верхняя одежда
-    TShirt, Shirt, TankTop, PoloShirt, Sweatshirt, Hoodie, Jacket, Blazer, Vest,
-    Cardigan, Turtleneck, Coat, Parka, Windbreaker, PeaCoat, Poncho, Cape,
-    Tuxedo, Suit, Overall,
+    TShirt,
+    // Shirt,
+    // TankTop,
+    PoloShirt,
+//    Sweatshirt,
+    // Hoodie,
+    Jacket,
+    // Blazer,
+    // Vest,
+    // Cardigan,
+    // Turtleneck,
+    // Coat,
+    // Parka,
+    // Windbreaker,
+    // PeaCoat,
+    // Poncho,
+    // Cape,
+    // Tuxedo,
+    // Suit,
+    // Overall,
 
     // Нижняя одежда
-    Jeans, Pants, Joggers, Shorts, Skirt, Leggings, Capris, Culottes, Jumpsuit,
-    Tights, CargoPants, Chinos, TrackPants, Bermuda, FlarePants, Palazzo,
-    Gauchos, Sarong, Salwar, HaremPants);
+    // Jeans,
+    Pants,
+    // Joggers,
+    // Shorts,
+    Skirt
+    // Leggings,
+    // Capris,
+    // Culottes,
+    // Jumpsuit,
+    // Tights,
+    // CargoPants,
+    // Chinos,
+    // TrackPants,
+    // Bermuda,
+    // FlarePants,
+    // Palazzo,
+    // Gauchos,
+    // Sarong,
+    // Salwar,
+    // HaremPants
+    );
 
   TColor = (Red, Blue, Green, Yellow, Orange, Purple, Pink, Brown, Black, White,
     Gray, Cyan, Magenta, Turqun, Indigo, Teal, Goloise, Lavender,
@@ -58,86 +93,164 @@ begin
   case Name of
     TShirt:
       Result := 'T-Shirt';
-    Shirt:
-      Result := 'Shirt';
-    TankTop:
-      Result := 'Tank Top';
+//    Shirt:
+//      Result := 'Shirt';
+//    TankTop:
+//      Result := 'Tank Top';
     PoloShirt:
       Result := 'Polo Shirt';
-    Sweatshirt:
-      Result := 'Sweatshirt';
-    Hoodie:
-      Result := 'Hoodie';
+//    Sweatshirt:
+//      Result := 'Sweatshirt';
+//    Hoodie:
+//      Result := 'Hoodie';
     Jacket:
       Result := 'Jacket';
-    Blazer:
-      Result := 'Blazer';
-    Vest:
-      Result := 'Vest';
-    Cardigan:
-      Result := 'Cardigan';
-    Turtleneck:
-      Result := 'Turtleneck';
-    Coat:
-      Result := 'Coat';
-    Parka:
-      Result := 'Parka';
-    Windbreaker:
-      Result := 'Windbreaker';
-    PeaCoat:
-      Result := 'Pea Coat';
-    Poncho:
-      Result := 'Poncho';
-    Cape:
-      Result := 'Cape';
-    Tuxedo:
-      Result := 'Tuxedo';
-    Suit:
-      Result := 'Suit';
-    Overall:
-      Result := 'Overall';
-    Jeans:
-      Result := 'Jeans';
+//    Blazer:
+//      Result := 'Blazer';
+//    Vest:
+//      Result := 'Vest';
+//    Cardigan:
+//      Result := 'Cardigan';
+//    Turtleneck:
+//      Result := 'Turtleneck';
+//    Coat:
+//      Result := 'Coat';
+//    Parka:
+//      Result := 'Parka';
+//    Windbreaker:
+//      Result := 'Windbreaker';
+//    PeaCoat:
+//      Result := 'Pea Coat';
+//    Poncho:
+//      Result := 'Poncho';
+//    Cape:
+//      Result := 'Cape';
+//    Tuxedo:
+//      Result := 'Tuxedo';
+//    Suit:
+//      Result := 'Suit';
+//    Overall:
+//      Result := 'Overall';
+//    Jeans:
+//      Result := 'Jeans';
     Pants:
       Result := 'Pants';
-    Joggers:
-      Result := 'Joggers';
-    Shorts:
-      Result := 'Shorts';
+//    Joggers:
+//      Result := 'Joggers';
+//    Shorts:
+//      Result := 'Shorts';
     Skirt:
       Result := 'Skirt';
-    Leggings:
-      Result := 'Leggings';
-    Capris:
-      Result := 'Capris';
-    Culottes:
-      Result := 'Culottes';
-    Jumpsuit:
-      Result := 'Jumpsuit';
-    Tights:
-      Result := 'Tights';
-    CargoPants:
-      Result := 'Cargo Pants';
-    Chinos:
-      Result := 'Chinos';
-    TrackPants:
-      Result := 'Track Pants';
-    Bermuda:
-      Result := 'Bermuda';
-    FlarePants:
-      Result := 'Flare Pants';
-    Palazzo:
-      Result := 'Palazzo';
-    Gauchos:
-      Result := 'Gauchos';
-    Sarong:
-      Result := 'Sarong';
-    Salwar:
-      Result := 'Salwar';
-    HaremPants:
-      Result := 'Harem Pants';
+//    Leggings:
+//      Result := 'Leggings';
+//    Capris:
+//      Result := 'Capris';
+//    Culottes:
+//      Result := 'Culottes';
+//    Jumpsuit:
+//      Result := 'Jumpsuit';
+//    Tights:
+//      Result := 'Tights';
+//    CargoPants:
+//      Result := 'Cargo Pants';
+//    Chinos:
+//      Result := 'Chinos';
+//    TrackPants:
+//      Result := 'Track Pants';
+//    Bermuda:
+//      Result := 'Bermuda';
+//    FlarePants:
+//      Result := 'Flare Pants';
+//    Palazzo:
+//      Result := 'Palazzo';
+//    Gauchos:
+//      Result := 'Gauchos';
+//    Sarong:
+//      Result := 'Sarong';
+//    Salwar:
+//      Result := 'Salwar';
+//    HaremPants:
+//      Result := 'Harem Pants';
 
   end;
+end;
+
+function Model2Coof(const model: TModels): TModelCof;
+begin
+
+  case model of
+    Oversize:
+      begin
+        Result.Talia := 1;
+        Result.Shoulder := 1.2;
+        Result.Bedra := 1.2;
+        Result.Shoul_krai := 0.968;
+      end;
+    SlimFit:
+      begin
+        Result.Talia := 0.9;
+        Result.Shoulder := 1;
+        Result.Bedra := 0.9;
+        Result.Shoul_krai := 1;
+      end;
+    Regular:
+      begin
+        Result.Talia := 1;
+        Result.Shoulder := 1;
+        Result.Bedra := 1;
+        Result.Shoul_krai := 1;
+      end;
+    Athletic:
+      begin
+        Result.Talia := 0.9;
+        Result.Shoulder := 0.9;
+        Result.Bedra := 0.9;
+        Result.Shoul_krai := 1;
+      end;
+    Tall:
+      begin
+        Result.Talia := 1.3;
+        Result.Shoulder := 1.3;
+        Result.Bedra := 1.3;
+        Result.Shoul_krai := 1.3;
+      end;
+    Patite:
+      begin
+        Result.Talia := 0.7;
+        Result.Shoulder := 0.7;
+        Result.Bedra := 0.7;
+        Result.Shoul_krai := 0.7;
+      end;
+    PlusSize:
+      begin
+        Result.Talia := 2.2;
+        Result.Shoulder := 2.2;
+        Result.Bedra := 2.2;
+        Result.Shoul_krai := 2.2;
+      end;
+    Curvy:
+      begin
+        Result.Talia := 2;
+        Result.Shoulder := 2;
+        Result.Bedra := 2;
+        Result.Shoul_krai := 2;
+      end;
+    Hourglass:
+      begin
+        Result.Talia := 1;
+        Result.Shoulder := 1.15;
+        Result.Bedra := 1.2;
+        Result.Shoul_krai := 1;
+      end;
+    Pear:
+      begin
+        Result.Talia := 1.2;
+        Result.Shoulder := 1;
+        Result.Bedra := 1.2;
+        Result.Shoul_krai := 1;
+      end;
+  end;
+
 end;
 
 function Size2CoofMan(const size: TSizes): double;
@@ -184,84 +297,6 @@ begin
 
 end;
 
-function Model2Coof(const model: TModels): TModelCof;
-begin
-
-  case model of
-    Oversize:
-      begin
-        Result.Talia := 1;
-        Result.Shoulder := 1.2;
-        Result.Bedra := 1.2;
-        Result.Shoul_krai := 0.968;
-      end;
-    SlimFit:
-      begin
-        Result.Talia := 0.9;
-        Result.Shoulder := 1;
-        Result.Bedra := 0.9;
-        Result.Shoul_krai := 1;
-      end;
-    Regular:
-      begin
-        Result.Talia := 1;
-        Result.Shoulder := 1;
-        Result.Bedra := 1;
-        Result.Shoul_krai := 1;
-      end;
-    Athletic:
-      begin
-        Result.Talia := 0.9;
-        Result.Shoulder := 0.9;
-        Result.Bedra := 0.9;
-        Result.Shoul_krai := 1;
-      end;
-    Tall:
-      begin
-        Result.Talia := 1.3;
-        Result.Shoulder :=1.3;
-        Result.Bedra := 1.3;
-        Result.Shoul_krai := 1.3;
-      end;
-    Patite:
-      begin
-        Result.Talia := 0.7;
-        Result.Shoulder := 0.7;
-        Result.Bedra := 0.7;
-        Result.Shoul_krai := 0.7;
-      end;
-    PlusSize:
-      begin
-        Result.Talia := 2.2;
-        Result.Shoulder := 2.2;
-        Result.Bedra := 2.2;
-        Result.Shoul_krai := 2.2;
-      end;
-    Curvy:
-      begin
-        Result.Talia := 2;
-        Result.Shoulder := 2;
-        Result.Bedra := 2;
-        Result.Shoul_krai := 2;
-      end;
-    Hourglass:
-      begin
-        Result.Talia := 1;
-        Result.Shoulder := 1.15;
-        Result.Bedra := 1.2;
-        Result.Shoul_krai := 1;
-      end;
-    Pear:
-      begin
-        Result.Talia := 1.2;
-        Result.Shoulder := 1;
-        Result.Bedra := 1.2;
-        Result.Shoul_krai := 1;
-      end;
-  end;
-
-end;
-
 procedure ChangeSize(var faces: PFace; const coof, prevCoof: double);
 var
   temp: PFace;
@@ -289,49 +324,65 @@ var
   meanCoof, meanCoofPrev: double;
 begin
   temp := faces;
-  if (indexTalia=indexBedra) and (indexTalia=indexShoulder) and (indexTalia=indexShoul_krai) then
+  if (indexTalia = indexBedra) and (indexTalia = indexShoulder) and
+    (indexTalia = indexShoul_krai) then
   begin
     while temp <> nil do
     begin
       for var i := 0 to 3 do
       begin
-        temp^.Data.Coordinates[i][0] := temp^.Data.Coordinates[i][0] / previndexTalia;
-        temp^.Data.Coordinates[i][1] := temp^.Data.Coordinates[i][1] / previndexTalia;
-        temp^.Data.Coordinates[i][2] := temp^.Data.Coordinates[i][2] / previndexTalia;
-        temp^.Data.Coordinates[i][0] := temp^.Data.Coordinates[i][0] * indexTalia;
-        temp^.Data.Coordinates[i][1] := temp^.Data.Coordinates[i][1] * indexTalia;
-        temp^.Data.Coordinates[i][2] := temp^.Data.Coordinates[i][2] * indexTalia;
+        temp^.Data.Coordinates[i][0] := temp^.Data.Coordinates[i][0] /
+          previndexTalia;
+        temp^.Data.Coordinates[i][1] := temp^.Data.Coordinates[i][1] /
+          previndexTalia;
+        temp^.Data.Coordinates[i][2] := temp^.Data.Coordinates[i][2] /
+          previndexTalia;
+        temp^.Data.Coordinates[i][0] := temp^.Data.Coordinates[i][0] *
+          indexTalia;
+        temp^.Data.Coordinates[i][1] := temp^.Data.Coordinates[i][1] *
+          indexTalia;
+        temp^.Data.Coordinates[i][2] := temp^.Data.Coordinates[i][2] *
+          indexTalia;
       end;
       temp := temp^.next;
     end;
   end
-  else if (indexShoulder=indexTalia) then
+  else if (indexShoulder = indexTalia) then
   begin
     while temp <> nil do
     begin
       for var i := 0 to 3 do
       begin
-        temp^.Data.Coordinates[i][0] := temp^.Data.Coordinates[i][0] / previndexTalia;
-        temp^.Data.Coordinates[i][1] := temp^.Data.Coordinates[i][1] / previndexShoul_krai;
-        temp^.Data.Coordinates[i][2] := temp^.Data.Coordinates[i][2] / previndexTalia;
-        temp^.Data.Coordinates[i][0] := temp^.Data.Coordinates[i][0] * indexTalia;
+        temp^.Data.Coordinates[i][0] := temp^.Data.Coordinates[i][0] /
+          previndexTalia;
+        temp^.Data.Coordinates[i][1] := temp^.Data.Coordinates[i][1] /
+          previndexShoul_krai;
+        temp^.Data.Coordinates[i][2] := temp^.Data.Coordinates[i][2] /
+          previndexTalia;
+        temp^.Data.Coordinates[i][0] := temp^.Data.Coordinates[i][0] *
+          indexTalia;
 
-        temp^.Data.Coordinates[i][2] := temp^.Data.Coordinates[i][2] * indexTalia;
+        temp^.Data.Coordinates[i][2] := temp^.Data.Coordinates[i][2] *
+          indexTalia;
       end;
       temp := temp^.next;
     end;
   end
   else
   begin
-    meanCoofPrev:= (previndexTalia+previndexBedra+previndexShoulder+previndexShoul_krai)/4;
-    meanCoof:= (indexTalia+indexBedra+indexShoulder+indexShoul_krai)/4;
+    meanCoofPrev := (previndexTalia + previndexBedra + previndexShoulder +
+      previndexShoul_krai) / 4;
+    meanCoof := (indexTalia + indexBedra + indexShoulder + indexShoul_krai) / 4;
     while temp <> nil do
     begin
       for var i := 0 to 3 do
       begin
-        temp^.Data.Coordinates[i][0] := temp^.Data.Coordinates[i][0] / meanCoofPrev;
-        temp^.Data.Coordinates[i][1] := temp^.Data.Coordinates[i][1] / previndexShoul_krai;
-        temp^.Data.Coordinates[i][2] := temp^.Data.Coordinates[i][2] / meanCoofPrev;
+        temp^.Data.Coordinates[i][0] := temp^.Data.Coordinates[i][0] /
+          meanCoofPrev;
+        temp^.Data.Coordinates[i][1] := temp^.Data.Coordinates[i][1] /
+          previndexShoul_krai;
+        temp^.Data.Coordinates[i][2] := temp^.Data.Coordinates[i][2] /
+          meanCoofPrev;
         temp^.Data.Coordinates[i][0] := temp^.Data.Coordinates[i][0] * meanCoof;
         temp^.Data.Coordinates[i][1] := temp^.Data.Coordinates[i][1] * meanCoof;
         temp^.Data.Coordinates[i][2] := temp^.Data.Coordinates[i][2] * meanCoof;

@@ -203,6 +203,10 @@ begin
   end;
   close(modelFile);
 
+  vershinaLength:= 0;
+  vershinaLengthDynm:= 0;
+  normalLength:= 0;
+
 end;
 
 procedure SaveTXTToFile(var arrayDLCL: TVershinaDynamic;

@@ -192,10 +192,10 @@ begin
         finally
           CloseFile(ObjFile);
           if SaveModel.Execute then
-            if FileExists(SaveModel.FileName) then
-              raise Exception.Create('File already exists. Cannot overwrite.')
-            else
-            begin
+//            if FileExists(SaveModel.FileName) then
+//              raise Exception.Create('File already exists. Cannot overwrite.')
+//            else
+//            begin
               try
                 SavePFaceToFile(Faces, SaveModel.FileName + '.dat');
               finally
@@ -204,7 +204,7 @@ begin
                 FormSpineModel.Show;
                 FormSpineModel.FilePath := SaveModel.FileName + '.dat';
               end;
-            end;
+//            end;
         end;
       end;
     end;
